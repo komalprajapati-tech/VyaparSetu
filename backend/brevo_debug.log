@@ -1,0 +1,10 @@
+[2026-07-19 05:11:37.963629] Failed to send to komalprajapati112006@gmail.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:4142:63c:d413:4750:c076:8e6c. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+[2026-07-19 05:15:55.180718] Failed to send to komalprajapati112006@gmail.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:4142:63c:d413:4750:c076:8e6c. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+[2026-07-24 06:12:09.509300] Failed to send to test_owner_12345@example.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:411c:2151:7ca5:6b80:7be5:7080. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+[2026-07-24 12:20:56.721747] Failed to send to komalprajapati112006@gmail.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:4109:c78b:e970:c58c:b752:4af5. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+[2026-07-25 12:44:41.302153] Failed to send to newmerchant@example.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:4015:55b1:e9a1:8511:b9f9:fb32. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+

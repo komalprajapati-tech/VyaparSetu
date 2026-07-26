@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primary-light: var(--primary-color-light);
+  --color-primary-hover: var(--primary-color-hover);
+  --color-primary-border: var(--primary-color-border);
+  --color-page-bg: var(--bg-color);
+}
+
+:root {
+  --primary-color: #1F4D3D;
+  --primary-color-light: #F0F5F3; /* Very soft forest green tint */
+  --primary-color-hover: #16372b;
+  --primary-color-border: #1F4D3D15;
+  --bg-color: #FAF6F0;
+}
+
+[data-theme="deep_blue"] {
+  --primary-color: #1E3A5F;
+  --primary-color-light: #F0F4F8; /* Very soft navy blue tint */
+  --primary-color-hover: #152943;
+  --primary-color-border: #1E3A5F15;
+}
+
+/* ================= Google Translate Customization ================= */
+
+/* Hide the main Google Translate top banner */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+iframe[id^=":1.container"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Prevent body from being pushed down by the Google Translate top banner */
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+/* Hide original Google Translate widget inside the DOM */
+#google_translate_element {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide translation tooltips on hover */
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-preview-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Prevent highlighting of translated elements */
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
