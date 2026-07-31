@@ -48,6 +48,7 @@ def create_and_save_otp(email: str, otp: str):
     otp_doc = OTP.objects(email=email).first()
     if otp_doc:
         otp_doc.otp_hash = otp_hash
+        otp_doc.plain_otp = otp
         otp_doc.attempts = 0
         otp_doc.created_at = datetime.utcnow()
         otp_doc.expires_at = datetime.utcnow() + timedelta(minutes=5)
@@ -55,6 +56,7 @@ def create_and_save_otp(email: str, otp: str):
         otp_doc = OTP(
             email=email,
             otp_hash=otp_hash,
+            plain_otp=otp,
             attempts=0,
             created_at=datetime.utcnow(),
             expires_at=datetime.utcnow() + timedelta(minutes=5)
@@ -83,13 +85,37 @@ def send_otp_email(email, otp):
         ],
         "subject": "Verify Your LekhBook Account",
         "htmlContent": f"""
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2>Welcome to LekhBook</h2>
-            <p>Your verification code is:</p>
-            <h1 style="color: #10b981; font-size: 32px; letter-spacing: 2px;">{otp}</h1>
-            <p>This OTP is valid for 5 minutes.</p>
-            <br>
-            <p>If you didn't request this email, please ignore it.</p>
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 32px; color: #334155;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #1F4D3D; font-size: 26px; font-weight: 700; margin: 0;">LekhBook</h1>
+                <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Smart Business Ledger & Bookkeeping</p>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 24px;" />
+            
+            <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 16px;">
+                Hello! Thank you for registering with <strong>LekhBook</strong>. We are delighted to have you on board to manage your business ledger effortlessly.
+            </p>
+            
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">
+                Please use the standard verification code below to confirm your email address and activate your account:
+            </p>
+            
+            <div style="text-align: center; background-color: #f0fdf4; border: 1px dashed #22c55e; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                <span style="font-size: 36px; font-weight: 800; letter-spacing: 6px; color: #166534;">{otp}</span>
+            </div>
+            
+            <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 24px;">
+                ⏱️ This code is valid for <strong>5 minutes</strong>. For your security, please do not share this code with anyone.
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 20px;" />
+            
+            <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
+                If you did not request this verification code, please ignore this message.<br><br>
+                Warm regards,<br>
+                <strong>The LekhBook Team</strong>
+            </p>
         </div>
         """,
     }

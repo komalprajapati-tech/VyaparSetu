@@ -42,6 +42,7 @@ class User(Document):
 class OTP(Document):
     email = EmailField(required=True, unique=True)
     otp_hash = StringField(required=True)
+    plain_otp = StringField(default="")
     attempts = IntField(default=0)
     created_at = DateTimeField(default=datetime.utcnow)
     expires_at = DateTimeField(required=True)

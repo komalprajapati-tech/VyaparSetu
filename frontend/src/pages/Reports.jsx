@@ -18,7 +18,7 @@ function Reports() {
     });
     const [endDate, setEndDate] = useState(() => new Date().toISOString().split("T")[0]);
     const [typeFilter, setTypeFilter] = useState(""); // empty, income, expense
-    
+
     // Quick totals
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
@@ -57,59 +57,59 @@ function Reports() {
                 "Authorization": `Bearer ${token}`
             }
         })
-        .then(async (res) => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to load reports");
-            return data;
-        })
-        .then((data) => {
-            setEntries(data.entries);
-            
-            // Calculate sums
-            let inc = 0;
-            let exp = 0;
-            data.entries.forEach(e => {
-                if (e.type === "income") inc += e.amount;
-                else exp += e.amount;
-            });
-            setTotalIncome(inc);
-            setTotalExpense(exp);
+            .then(async (res) => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to load reports");
+                return data;
+            })
+            .then((data) => {
+                setEntries(data.entries);
 
-            setLoading(false);
-        })
-        .catch((err) => {
-            setError(err.message || "Error loading transactions.");
-            setLoading(false);
-        });
+                // Calculate sums
+                let inc = 0;
+                let exp = 0;
+                data.entries.forEach(e => {
+                    if (e.type === "income") inc += e.amount;
+                    else exp += e.amount;
+                });
+                setTotalIncome(inc);
+                setTotalExpense(exp);
+
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError(err.message || "Error loading transactions.");
+                setLoading(false);
+            });
     };
 
     const handleDelete = (id) => {
         if (!window.confirm("Are you sure you want to delete this entry?")) return;
-        
+
         fetch(`http://localhost:8000/api/entries/${id}/`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${token}`
             }
         })
-        .then(async (res) => {
-            if (!res.ok) throw new Error("Failed to delete entry");
-            fetchEntries();
-        })
-        .catch((err) => {
-            alert(err.message || "Error deleting entry.");
-        });
+            .then(async (res) => {
+                if (!res.ok) throw new Error("Failed to delete entry");
+                fetchEntries();
+            })
+            .catch((err) => {
+                alert(err.message || "Error deleting entry.");
+            });
     };
 
     const handleExportCsv = () => {
         const { start, end } = getQueryDates();
-        let url = `http://localhost:8000/api/reports/export/?type=${typeFilter}`;
+        let url = `http://localhost:8000/api/reports/export/?token=${token}&type=${typeFilter}`;
         if (start && end) {
             url += `&start_date=${start}&end_date=${end}`;
         }
-        
+
         // Open download link
-        window.open(url + `&Authorization=Bearer ${token}`, "_blank");
+        window.open(url, "_blank");
     };
 
     const handlePrint = () => {
@@ -119,12 +119,12 @@ function Reports() {
     return (
         <Layout>
             <div className="space-y-6">
-                
+
                 {/* Filters Panel */}
                 <div className="bg-white border border-slate-200 rounded shadow-sm p-5 space-y-4 print:hidden">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">{t.reports}</h2>
-                        
+
                         <div className="flex gap-2">
                             <button
                                 onClick={handleExportCsv}

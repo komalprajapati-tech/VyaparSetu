@@ -8,10 +8,18 @@ import csv
 from django.http import HttpResponse
 
 def get_authenticated_user_email(request):
+    token = None
     auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    else:
+        token = request.query_params.get("token") or request.query_params.get("Authorization")
+        if token and token.startswith("Bearer "):
+            token = token.split(" ")[1]
+
+    if not token:
         return None
-    token = auth_header.split(" ")[1]
+
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
         if payload.get("token_type") == "access":

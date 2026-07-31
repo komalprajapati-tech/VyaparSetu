@@ -88,12 +88,10 @@ function OtpVerification() {
             setLoading(false);
             setSuccessMessage("Email verified successfully! Redirecting...");
             
-            // Log user in
+            // Log user in automatically
             loginUser(data.accessToken, data.refreshToken, data.user);
             
-            setTimeout(() => {
-                navigate("/select-business");
-            }, 1500);
+            navigate("/select-business", { replace: true });
         })
         .catch((err) => {
             setLoading(false);
