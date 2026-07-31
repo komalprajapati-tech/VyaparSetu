@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
+import API_BASE_URL from "../config";
 import { 
     ArrowUpRight, 
     ArrowDownRight, 
@@ -42,7 +43,7 @@ function Dashboard() {
 
     const fetchSummary = () => {
         setLoading(true);
-        let url = "http://localhost:8000/api/ledger/summary/";
+        let url = `${API_BASE_URL}/api/ledger/summary/`;
         const params = [];
         if (selectedDate) {
             params.push(`date=${selectedDate}`);

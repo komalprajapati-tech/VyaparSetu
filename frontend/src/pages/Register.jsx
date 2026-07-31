@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2, User, Mail, Lock, Eye, EyeOff, Loader2, Lock as LockIcon } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import API_BASE_URL from "../config";
 
 function Register() {
     const navigate = useNavigate();
@@ -37,7 +38,7 @@ function Register() {
         setError("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/auth/register/", {
+        fetch(`${API_BASE_URL}/api/auth/register/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

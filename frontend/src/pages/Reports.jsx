@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
 import { Search, Download, Printer, Trash2, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import API_BASE_URL from "../config";
 
 function Reports() {
     const { token, colors, t } = useApp();
@@ -47,7 +48,7 @@ function Reports() {
     const fetchEntries = () => {
         setLoading(true);
         const { start, end } = getQueryDates();
-        let url = `http://localhost:8000/api/entries/?type=${typeFilter}`;
+        let url = `${API_BASE_URL}/api/entries/?type=${typeFilter}`;
         if (start && end) {
             url += `&start_date=${start}&end_date=${end}`;
         }
@@ -86,7 +87,7 @@ function Reports() {
     const handleDelete = (id) => {
         if (!window.confirm("Are you sure you want to delete this entry?")) return;
 
-        fetch(`http://localhost:8000/api/entries/${id}/`, {
+        fetch(`${API_BASE_URL}/api/entries/${id}/`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -103,7 +104,7 @@ function Reports() {
 
     const handleExportCsv = () => {
         const { start, end } = getQueryDates();
-        let url = `http://localhost:8000/api/reports/export/?token=${token}&type=${typeFilter}`;
+        let url = `${API_BASE_URL}/api/reports/export/?token=${token}&type=${typeFilter}`;
         if (start && end) {
             url += `&start_date=${start}&end_date=${end}`;
         }

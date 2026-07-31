@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, ArrowLeft, Loader2, KeyRound } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import API_BASE_URL from "../config";
 
 function ForgotPassword() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ function ForgotPassword() {
         setSuccessMessage("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/auth/forgot-password/", {
+        fetch(`${API_BASE_URL}/api/auth/forgot-password/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

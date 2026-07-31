@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, Loader2, Lock as LockIcon } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import API_BASE_URL from "../config";
 
 function Login() {
     const navigate = useNavigate();
@@ -34,7 +35,7 @@ function Login() {
         setError("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/auth/login/", {
+        fetch(`${API_BASE_URL}/api/auth/login/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useState, useEffect } from "react";
+import API_BASE_URL from "../config";
 
 function Layout({ children }) {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ function Layout({ children }) {
 
     const fetchNotifications = () => {
         if (!token) return;
-        fetch("http://localhost:8000/api/auth/notifications/", {
+        fetch(`${API_BASE_URL}/api/auth/notifications/`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -52,7 +53,7 @@ function Layout({ children }) {
     }, [token]);
 
     const handleMarkRead = (id) => {
-        fetch(`http://localhost:8000/api/auth/notifications/${id}/read/`, {
+        fetch(`${API_BASE_URL}/api/auth/notifications/${id}/read/`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`

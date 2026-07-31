@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
 import { PieChart, Loader2, AlertCircle } from "lucide-react";
+import API_BASE_URL from "../config";
 
 function Expenses() {
     const { token, colors, t } = useApp();
@@ -15,7 +16,7 @@ function Expenses() {
 
     const fetchExpenses = () => {
         setLoading(true);
-        fetch("http://localhost:8000/api/ledger/summary/", {
+        fetch(`${API_BASE_URL}/api/ledger/summary/`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, Loader2, Lock } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import API_BASE_URL from "../config";
 
 function OtpVerification() {
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ function OtpVerification() {
         setError("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/auth/verify-otp/", {
+        fetch(`${API_BASE_URL}/api/auth/verify-otp/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -105,7 +106,7 @@ function OtpVerification() {
         setSuccessMessage("");
         setTimer(30);
 
-        fetch("http://localhost:8000/api/auth/resend-otp/", {
+        fetch(`${API_BASE_URL}/api/auth/resend-otp/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

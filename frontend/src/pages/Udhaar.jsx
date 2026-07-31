@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
 import { BookOpen, UserPlus, Send, CheckCircle, AlertCircle, Loader2, Calendar } from "lucide-react";
+import API_BASE_URL from "../config";
 
 function Udhaar() {
     const { token, user, colors, t } = useApp();
@@ -23,7 +24,7 @@ function Udhaar() {
 
     const fetchUdhaar = () => {
         setLoading(true);
-        fetch("http://localhost:8000/api/udhaar/?status=pending", {
+        fetch(`${API_BASE_URL}/api/udhaar/?status=pending`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -52,7 +53,7 @@ function Udhaar() {
         setActionLoading(true);
         setError("");
 
-        fetch("http://localhost:8000/api/udhaar/", {
+        fetch(`${API_BASE_URL}/api/udhaar/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -87,7 +88,7 @@ function Udhaar() {
     const handleMarkPaid = (id) => {
         if (!window.confirm("Are you sure you want to mark this credit as paid?")) return;
         
-        fetch(`http://localhost:8000/api/udhaar/${id}/`, {
+        fetch(`${API_BASE_URL}/api/udhaar/${id}/`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

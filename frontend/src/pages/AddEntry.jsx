@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
 import { PlusCircle, Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import API_BASE_URL from "../config";
  
 function AddEntry() {
     const navigate = useNavigate();
@@ -55,7 +56,7 @@ function AddEntry() {
         setSuccessMessage("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/entries/", {
+        fetch(`${API_BASE_URL}/api/entries/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

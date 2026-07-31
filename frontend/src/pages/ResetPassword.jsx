@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, Loader2, KeyRound } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import API_BASE_URL from "../config";
 
 function ResetPassword() {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ function ResetPassword() {
         setSuccessMessage("");
         setLoading(true);
 
-        fetch("http://localhost:8000/api/auth/reset-password/", {
+        fetch(`${API_BASE_URL}/api/auth/reset-password/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
