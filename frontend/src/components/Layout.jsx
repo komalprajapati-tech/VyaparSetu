@@ -119,7 +119,7 @@ function Layout({ children }) {
                             <div>
                                 <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-1.5">
                                     <span className="w-2.5 h-2.5 rounded-full bg-[#00df9a]" />
-                                    Lekh<span className="text-[#00df9a]">Book</span>
+                                    Vyapar<span className="text-[#00df9a]">Setu</span>
                                 </h2>
                                 <div className="mt-1">
                                     <p className="text-xs font-bold text-slate-300 truncate w-40">{user?.businessName || "Komal Store"}</p>

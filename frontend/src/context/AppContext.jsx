@@ -3,9 +3,9 @@ import { createContext, useState, useEffect, useContext } from "react";
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-    const [token, setToken] = useState(localStorage.getItem("lekhbook_accessToken") || "");
+    const [token, setToken] = useState(localStorage.getItem("vyaparsetu_accessToken") || "");
     const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("lekhbook_user");
+        const storedUser = localStorage.getItem("vyaparsetu_user");
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
@@ -75,9 +75,9 @@ export function AppProvider({ children }) {
             border = "#BEB5A9";  // Light tone
             bg = "#FAF6F0";      // Soft cream
         } else if (themeName === "custom") {
-            primary = customColors.primary || localStorage.getItem("lekhbook_custom_primary") || "#6E473B";
-            light = customColors.light || localStorage.getItem("lekhbook_custom_light") || "#F3EBE0";
-            bg = customColors.bg || localStorage.getItem("lekhbook_custom_bg") || "#FAF6F0";
+            primary = customColors.primary || localStorage.getItem("vyaparsetu_custom_primary") || "#6E473B";
+            light = customColors.light || localStorage.getItem("vyaparsetu_custom_light") || "#F3EBE0";
+            bg = customColors.bg || localStorage.getItem("vyaparsetu_custom_bg") || "#FAF6F0";
             hover = primary;
             border = primary + "20";
         }
@@ -95,24 +95,24 @@ export function AppProvider({ children }) {
     }, [theme]);
 
     const setCustomThemeColors = (colorsObj) => {
-        localStorage.setItem("lekhbook_custom_primary", colorsObj.primary);
-        localStorage.setItem("lekhbook_custom_light", colorsObj.light);
-        localStorage.setItem("lekhbook_custom_bg", colorsObj.bg);
+        localStorage.setItem("vyaparsetu_custom_primary", colorsObj.primary);
+        localStorage.setItem("vyaparsetu_custom_light", colorsObj.light);
+        localStorage.setItem("vyaparsetu_custom_bg", colorsObj.bg);
         applyTheme("custom", colorsObj);
     };
 
     const loginUser = (accessToken, refreshToken, userData) => {
-        localStorage.setItem("lekhbook_accessToken", accessToken);
-        localStorage.setItem("lekhbook_refreshToken", refreshToken);
-        localStorage.setItem("lekhbook_user", JSON.stringify(userData));
+        localStorage.setItem("vyaparsetu_accessToken", accessToken);
+        localStorage.setItem("vyaparsetu_refreshToken", refreshToken);
+        localStorage.setItem("vyaparsetu_user", JSON.stringify(userData));
         setToken(accessToken);
         setUser(userData);
     };
 
     const logoutUser = () => {
-        localStorage.removeItem("lekhbook_accessToken");
-        localStorage.removeItem("lekhbook_refreshToken");
-        localStorage.removeItem("lekhbook_user");
+        localStorage.removeItem("vyaparsetu_accessToken");
+        localStorage.removeItem("vyaparsetu_refreshToken");
+        localStorage.removeItem("vyaparsetu_user");
         setToken("");
         setUser(null);
     };

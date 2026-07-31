@@ -83,18 +83,18 @@ def send_otp_email(email, otp):
                 "email": email
             }
         ],
-        "subject": "Verify Your LekhBook Account",
+        "subject": "Verify Your VyaparSetu Account",
         "htmlContent": f"""
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 32px; color: #334155;">
             <div style="text-align: center; margin-bottom: 24px;">
-                <h1 style="color: #1F4D3D; font-size: 26px; font-weight: 700; margin: 0;">LekhBook</h1>
+                <h1 style="color: #1F4D3D; font-size: 26px; font-weight: 700; margin: 0;">VyaparSetu</h1>
                 <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Smart Business Ledger & Bookkeeping</p>
             </div>
             
             <hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 24px;" />
             
             <p style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 16px;">
-                Hello! Thank you for registering with <strong>LekhBook</strong>. We are delighted to have you on board to manage your business ledger effortlessly.
+                Hello! Thank you for registering with <strong>VyaparSetu</strong>. We are delighted to have you on board to manage your business ledger effortlessly.
             </p>
             
             <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">
@@ -114,7 +114,7 @@ def send_otp_email(email, otp):
             <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
                 If you did not request this verification code, please ignore this message.<br><br>
                 Warm regards,<br>
-                <strong>The LekhBook Team</strong>
+                <strong>The VyaparSetu Team</strong>
             </p>
         </div>
         """,

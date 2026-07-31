@@ -28,9 +28,9 @@ function Settings() {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
  
-    const [customPrimary, setCustomPrimary] = useState(() => localStorage.getItem("lekhbook_custom_primary") || "#6E473B");
-    const [customLight, setCustomLight] = useState(() => localStorage.getItem("lekhbook_custom_light") || "#F3EBE0");
-    const [customBg, setCustomBg] = useState(() => localStorage.getItem("lekhbook_custom_bg") || "#FAF6F0");
+    const [customPrimary, setCustomPrimary] = useState(() => localStorage.getItem("vyaparsetu_custom_primary") || "#6E473B");
+    const [customLight, setCustomLight] = useState(() => localStorage.getItem("vyaparsetu_custom_light") || "#F3EBE0");
+    const [customBg, setCustomBg] = useState(() => localStorage.getItem("vyaparsetu_custom_bg") || "#FAF6F0");
  
     const handleCustomColorChange = (key, value) => {
         let updatedColors = {
