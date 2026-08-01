@@ -614,133 +614,137 @@ def notifications_list(request):
     if not user:
         return Response({"success": False, "message": "User not found."}, status=404)
 
-    from ledger.models import Entry, Udhaar
-    import pytz
-    from datetime import datetime, timedelta
+    try:
+        from ledger.models import Entry, Udhaar
+        import pytz
+        from datetime import datetime, timedelta
 
-    now = datetime.utcnow()
-    # local time
-    kolkata = pytz.timezone("Asia/Kolkata")
-    now_local = datetime.now(kolkata)
-    today_start_local = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_start_utc = today_start_local.astimezone(pytz.utc).replace(tzinfo=None)
-    
-    # 1. Inactivity reminder: if no entries for 2+ days
-    last_entry = Entry.objects(user_email=user_email).order_by("-date").first()
-    if last_entry:
-        days_inactive = (now - last_entry.date).days
-        if days_inactive >= 2:
-            existing = Notification.objects(user_email=user_email, type="inactivity", created_at__gte=now - timedelta(days=1)).first()
+        now = datetime.utcnow()
+        # local time
+        kolkata = pytz.timezone("Asia/Kolkata")
+        now_local = datetime.now(kolkata)
+        today_start_local = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start_utc = today_start_local.astimezone(pytz.utc).replace(tzinfo=None)
+        
+        # 1. Inactivity reminder: if no entries for 2+ days
+        last_entry = Entry.objects(user_email=user_email).order_by("-date").first()
+        if last_entry:
+            days_inactive = (now - last_entry.date).days
+            if days_inactive >= 2:
+                existing = Notification.objects(user_email=user_email, type="inactivity", created_at__gte=now - timedelta(days=1)).first()
+                if not existing:
+                    Notification(
+                        user_email=user_email,
+                        title="Inactivity Reminder",
+                        message=f"You haven't recorded any transactions in the last {days_inactive} days. Keep your ledger updated!",
+                        type="inactivity"
+                    ).save()
+        else:
+            existing = Notification.objects(user_email=user_email, type="inactivity").first()
             if not existing:
                 Notification(
                     user_email=user_email,
-                    title="Inactivity Reminder",
-                    message=f"You haven't recorded any transactions in the last {days_inactive} days. Keep your ledger updated!",
+                    title="Get Started!",
+                    message="You haven't recorded any entries yet. Try logging your first income or expense today!",
                     type="inactivity"
                 ).save()
-    else:
-        existing = Notification.objects(user_email=user_email, type="inactivity").first()
-        if not existing:
-            Notification(
-                user_email=user_email,
-                title="Get Started!",
-                message="You haven't recorded any entries yet. Try logging your first income or expense today!",
-                type="inactivity"
-            ).save()
 
-    # 2. Udhaar overdue reminder (pending 7+ days)
-    overdue_udhaar = Udhaar.objects(user_email=user_email, status="pending")
-    for u in overdue_udhaar:
-        is_overdue = False
-        if u.due_date and now >= u.due_date + timedelta(days=7):
-            is_overdue = True
-        elif not u.due_date and now >= u.created_at + timedelta(days=7):
-            is_overdue = True
-            
-        if is_overdue:
-            existing = Notification.objects(user_email=user_email, type="udhaar_overdue", message__contains=u.customer_name).first()
+        # 2. Udhaar overdue reminder (pending 7+ days)
+        overdue_udhaar = Udhaar.objects(user_email=user_email, status="pending")
+        for u in overdue_udhaar:
+            is_overdue = False
+            if u.due_date and now >= u.due_date + timedelta(days=7):
+                is_overdue = True
+            elif not u.due_date and now >= u.created_at + timedelta(days=7):
+                is_overdue = True
+                
+            if is_overdue:
+                existing = Notification.objects(user_email=user_email, type="udhaar_overdue", message__contains=u.customer_name).first()
+                if not existing:
+                    Notification(
+                        user_email=user_email,
+                        title="Udhaar Overdue Alert",
+                        message=f"Customer {u.customer_name}'s payment of ₹{u.amount} has been pending for over 7 days.",
+                        type="udhaar_overdue"
+                    ).save()
+
+        # 3. Weekly/Monthly loss alert if expenses exceed income
+        # Weekly stats
+        week_start_utc = (today_start_local - timedelta(days=now_local.weekday())).astimezone(pytz.utc).replace(tzinfo=None)
+        weekly_entries = Entry.objects(user_email=user_email, date__gte=week_start_utc)
+        weekly_income = sum(e.amount for e in weekly_entries if e.type == "income")
+        weekly_expense = sum(e.amount for e in weekly_entries if e.type == "expense")
+        if weekly_expense > weekly_income:
+            existing = Notification.objects(user_email=user_email, type="loss_alert_weekly", created_at__gte=week_start_utc).first()
             if not existing:
                 Notification(
                     user_email=user_email,
-                    title="Udhaar Overdue Alert",
-                    message=f"Customer {u.customer_name}'s payment of ₹{u.amount} has been pending for over 7 days.",
-                    type="udhaar_overdue"
+                    title="Weekly Loss Alert",
+                    message=f"Your weekly expenses (₹{weekly_expense}) exceed your income (₹{weekly_income}) by ₹{weekly_expense - weekly_income}.",
+                    type="loss_alert_weekly"
                 ).save()
 
-    # 3. Weekly/Monthly loss alert if expenses exceed income
-    # Weekly stats
-    week_start_utc = (today_start_local - timedelta(days=now_local.weekday())).astimezone(pytz.utc).replace(tzinfo=None)
-    weekly_entries = Entry.objects(user_email=user_email, date__gte=week_start_utc)
-    weekly_income = sum(e.amount for e in weekly_entries if e.type == "income")
-    weekly_expense = sum(e.amount for e in weekly_entries if e.type == "expense")
-    if weekly_expense > weekly_income:
-        existing = Notification.objects(user_email=user_email, type="loss_alert_weekly", created_at__gte=week_start_utc).first()
-        if not existing:
+        # Monthly stats
+        month_start_utc = today_start_local.replace(day=1).astimezone(pytz.utc).replace(tzinfo=None)
+        monthly_entries = Entry.objects(user_email=user_email, date__gte=month_start_utc)
+        monthly_income = sum(e.amount for e in monthly_entries if e.type == "income")
+        monthly_expense = sum(e.amount for e in monthly_entries if e.type == "expense")
+        if monthly_expense > monthly_income:
+            existing = Notification.objects(user_email=user_email, type="loss_alert_monthly", created_at__gte=month_start_utc).first()
+            if not existing:
+                Notification(
+                    user_email=user_email,
+                    title="Monthly Loss Alert",
+                    message=f"Your monthly expenses (₹{monthly_expense}) exceed your income (₹{monthly_income}) by ₹{monthly_expense - monthly_income}.",
+                    type="loss_alert_monthly"
+                ).save()
+
+        # 4. Weekly/Monthly summary notification
+        # Weekly summary
+        existing_weekly_summary = Notification.objects(user_email=user_email, type="summary_weekly", created_at__gte=week_start_utc).first()
+        if not existing_weekly_summary and now >= week_start_utc + timedelta(days=5):
             Notification(
                 user_email=user_email,
-                title="Weekly Loss Alert",
-                message=f"Your weekly expenses (₹{weekly_expense}) exceed your income (₹{weekly_income}) by ₹{weekly_expense - weekly_income}.",
-                type="loss_alert_weekly"
+                title="Weekly Financial Summary",
+                message=f"Weekly stats: Income ₹{weekly_income}, Expenses ₹{weekly_expense}. Net Profit: ₹{weekly_income - weekly_expense}.",
+                type="summary_weekly"
             ).save()
 
-    # Monthly stats
-    month_start_utc = today_start_local.replace(day=1).astimezone(pytz.utc).replace(tzinfo=None)
-    monthly_entries = Entry.objects(user_email=user_email, date__gte=month_start_utc)
-    monthly_income = sum(e.amount for e in monthly_entries if e.type == "income")
-    monthly_expense = sum(e.amount for e in monthly_entries if e.type == "expense")
-    if monthly_expense > monthly_income:
-        existing = Notification.objects(user_email=user_email, type="loss_alert_monthly", created_at__gte=month_start_utc).first()
-        if not existing:
+        # Monthly summary
+        existing_monthly_summary = Notification.objects(user_email=user_email, type="summary_monthly", created_at__gte=month_start_utc).first()
+        if not existing_monthly_summary and now_local.day >= 25:
             Notification(
                 user_email=user_email,
-                title="Monthly Loss Alert",
-                message=f"Your monthly expenses (₹{monthly_expense}) exceed your income (₹{monthly_income}) by ₹{monthly_expense - monthly_income}.",
-                type="loss_alert_monthly"
+                title="Monthly Financial Summary",
+                message=f"Monthly stats: Income ₹{monthly_income}, Expenses ₹{monthly_expense}. Net Profit: ₹{monthly_income - monthly_expense}.",
+                type="summary_monthly"
             ).save()
 
-    # 4. Weekly/Monthly summary notification
-    # Weekly summary
-    existing_weekly_summary = Notification.objects(user_email=user_email, type="summary_weekly", created_at__gte=week_start_utc).first()
-    if not existing_weekly_summary and now >= week_start_utc + timedelta(days=5):
-        Notification(
-            user_email=user_email,
-            title="Weekly Financial Summary",
-            message=f"Weekly stats: Income ₹{weekly_income}, Expenses ₹{weekly_expense}. Net Profit: ₹{weekly_income - weekly_expense}.",
-            type="summary_weekly"
-        ).save()
-
-    # Monthly summary
-    existing_monthly_summary = Notification.objects(user_email=user_email, type="summary_monthly", created_at__gte=month_start_utc).first()
-    if not existing_monthly_summary and now_local.day >= 25:
-        Notification(
-            user_email=user_email,
-            title="Monthly Financial Summary",
-            message=f"Monthly stats: Income ₹{monthly_income}, Expenses ₹{monthly_expense}. Net Profit: ₹{monthly_income - monthly_expense}.",
-            type="summary_monthly"
-        ).save()
-
-    # 5. End-of-day reminder if no income entry logged by a set time
-    if getattr(user, "eod_reminder_enabled", True):
-        reminder_time_str = getattr(user, "eod_reminder_time", "22:00")
-        try:
-            rem_h, rem_m = map(int, reminder_time_str.split(":"))
-            reminder_time_today = today_start_local.replace(hour=rem_h, minute=rem_m)
-            if now_local >= reminder_time_today:
-                today_income_exists = Entry.objects(
-                    user_email=user_email, 
-                    type="income", 
-                    date__gte=today_start_utc
-                ).first()
-                if not today_income_exists:
-                    existing = Notification.objects(user_email=user_email, type="eod_reminder", created_at__gte=today_start_utc).first()
-                    if not existing:
-                        Notification(
-                            user_email=user_email,
-                            title="End-of-day Reminder",
-                            message=f"You haven't logged any income entries today by your scheduled time of {reminder_time_str}.",
-                            type="eod_reminder"
-                        ).save()
-        except Exception:
+        # 5. End-of-day reminder if no income entry logged by a set time
+        if getattr(user, "eod_reminder_enabled", True):
+            reminder_time_str = getattr(user, "eod_reminder_time", "22:00")
+            try:
+                rem_h, rem_m = map(int, reminder_time_str.split(":"))
+                reminder_time_today = today_start_local.replace(hour=rem_h, minute=rem_m)
+                if now_local >= reminder_time_today:
+                    today_income_exists = Entry.objects(
+                        user_email=user_email, 
+                        type="income", 
+                        date__gte=today_start_utc
+                    ).first()
+                    if not today_income_exists:
+                        existing = Notification.objects(user_email=user_email, type="eod_reminder", created_at__gte=today_start_utc).first()
+                        if not existing:
+                            Notification(
+                                user_email=user_email,
+                                title="End-of-day Reminder",
+                                message=f"You haven't logged any income entries today by your scheduled time of {reminder_time_str}.",
+                                type="eod_reminder"
+                            ).save()
+            except Exception:
+                pass
+    except Exception as e:
+        print("Error generating notifications:", e)xception:
             pass
 
     notifs = Notification.objects(user_email=user_email, is_dismissed=False).order_by("-created_at")
