@@ -18,76 +18,86 @@ from .models import User, OTP, ResetOTP, Notification
 
 @api_view(["POST"])
 def register(request):
-    data = request.data
+    try:
+        data = request.data
 
-    is_valid, error = validate_register(data)
+        is_valid, error = validate_register(data)
 
-    if not is_valid:
-        return Response(
-            {
-                "success": False,
-                "message": error
-            },
-            status=400
-        )
-
-    # Check if user already exists
-    user = User.objects(email=data["email"]).first()
-    if user:
-        if user.is_verified:
+        if not is_valid:
             return Response(
                 {
                     "success": False,
-                    "message": "Email already registered."
+                    "message": error
                 },
-                status=409
+                status=400
             )
-        else:
-            # If user is unverified, check their rate limit and resend OTP
-            success, message = resend_otp_service(user.email)
-            if not success:
-                if "Too many OTP requests" in message:
+
+        # Check if user already exists
+        user = User.objects(email=data["email"]).first()
+        if user:
+            if user.is_verified:
+                return Response(
+                    {
+                        "success": False,
+                        "message": "Email already registered."
+                    },
+                    status=409
+                )
+            else:
+                # If user is unverified, check their rate limit and resend OTP
+                success, message = resend_otp_service(user.email)
+                if not success:
+                    if "Too many OTP requests" in message:
+                        return Response(
+                            {
+                                "success": False,
+                                "message": message
+                            },
+                            status=429
+                        )
                     return Response(
                         {
                             "success": False,
                             "message": message
                         },
-                        status=429
+                        status=500
                     )
                 return Response(
                     {
-                        "success": False,
-                        "message": message
+                        "success": True,
+                        "message": "OTP sent to your email."
                     },
-                    status=500
+                    status=200
                 )
+
+        # Register new user
+        user, email_sent = create_user(data)
+
+        if not email_sent:
             return Response(
                 {
-                    "success": True,
-                    "message": "OTP sent to your email."
+                    "success": False,
+                    "message": "Failed to send OTP email. Please check backend config/logs."
                 },
-                status=200
+                status=500
             )
 
-    # Register new user
-    user, email_sent = create_user(data)
-
-    if not email_sent:
+        return Response(
+            {
+                "success": True,
+                "message": "OTP sent to your email."
+            },
+            status=201
+        )
+    except Exception as e:
+        print("Register Exception:", str(e))
         return Response(
             {
                 "success": False,
-                "message": "Failed to send OTP email. Please check backend config/logs."
+                "message": f"Server Error: {str(e)}"
             },
             status=500
         )
-
-    return Response(
-        {
-            "success": True,
-            "message": "OTP sent to your email."
-        },
-        status=201
-    )
 
 
 @api_view(["POST"])
