@@ -139,17 +139,10 @@ def send_otp_email(email, otp):
             except Exception as log_error:
                 print(f"Failed to write to debug log: {log_error}")
             
-            if settings.DEBUG:
-                print(f"\n========================================================")
-                print(f"[DEBUG FALLBACK] Brevo failed. OTP for {email} is: {otp}")
-                print(f"========================================================\n")
-                return True, "Debug mode fallback"
             return False, err_msg
     except Exception as e:
         err_msg = f"Connection error: {e}"
         print(f"[ERROR] Connection to Brevo failed: {err_msg}")
-        if settings.DEBUG:
-            return True, "Debug mode fallback"
         return False, err_msg
 
 
