@@ -124,11 +124,17 @@ def send_otp_email(email, otp):
         """,
     }
 
+    key_preview = f"{api_key[:8]}...{api_key[-4:]}" if len(api_key) > 12 else "INVALID_KEY"
+    print(f"[BREVO REQUEST] To={email}, Sender={sender_email}, KeyPrefix={key_preview}")
+
     try:
         response = requests.post(url, json=payload, headers=headers)
+        print(f"[BREVO RESPONSE STATUS] {response.status_code}")
+        print(f"[BREVO RESPONSE BODY] {response.text}")
+
         if response.status_code == 201:
-            print(f"[OK] Email sent successfully to {email}")
-            return True, "Email sent successfully"
+            print(f"[OK] Email accepted by Brevo for {email}. Response: {response.text}")
+            return True, f"Brevo 201: {response.text}"
         else:
             err_msg = f"Brevo HTTP {response.status_code}: {response.text}"
             print(f"[ERROR] Brevo failed: {err_msg}")
