@@ -754,8 +754,7 @@ def notifications_list(request):
             except Exception:
                 pass
     except Exception as e:
-        print("Error generating notifications:", e)xception:
-            pass
+        print("Error generating notifications:", e)
 
     notifs = Notification.objects(user_email=user_email, is_dismissed=False).order_by("-created_at")
     data_list = []
