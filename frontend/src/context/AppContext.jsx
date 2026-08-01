@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react";
+import API_BASE_URL from "../config";
 
 const AppContext = createContext();
 
@@ -121,7 +122,7 @@ export function AppProvider({ children }) {
         if (!token) return false;
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/profile/", {
+            const res = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

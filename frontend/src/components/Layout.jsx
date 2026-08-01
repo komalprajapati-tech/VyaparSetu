@@ -68,7 +68,7 @@ function Layout({ children }) {
     };
 
     const handleDismiss = (id) => {
-        fetch(`http://localhost:8000/api/auth/notifications/${id}/dismiss/`, {
+        fetch(`${API_BASE_URL}/api/auth/notifications/${id}/dismiss/`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`
