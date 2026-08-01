@@ -71,13 +71,13 @@ def register(request):
                 )
 
         # Register new user
-        user, email_sent = create_user(data)
+        user, email_sent, email_err = create_user(data)
 
         if not email_sent:
             return Response(
                 {
                     "success": False,
-                    "message": "Failed to send OTP email. Please check backend config/logs."
+                    "message": f"Failed to send OTP email: {email_err}"
                 },
                 status=500
             )

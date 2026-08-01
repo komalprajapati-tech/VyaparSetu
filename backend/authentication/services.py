@@ -65,18 +65,22 @@ def create_and_save_otp(email: str, otp: str):
 
 
 def send_otp_email(email, otp):
+    api_key = (settings.BREVO_API_KEY or "").strip().strip('"').strip("'")
+    sender_email = (settings.BREVO_SENDER_EMAIL or "").strip().strip('"').strip("'")
+    sender_name = (settings.BREVO_SENDER_NAME or "VyaparSetu").strip().strip('"').strip("'")
+
     url = "https://api.brevo.com/v3/smtp/email"
 
     headers = {
         "accept": "application/json",
-        "api-key": settings.BREVO_API_KEY,
+        "api-key": api_key,
         "content-type": "application/json",
     }
 
     payload = {
         "sender": {
-            "name": settings.BREVO_SENDER_NAME,
-            "email": settings.BREVO_SENDER_EMAIL,
+            "name": sender_name,
+            "email": sender_email,
         },
         "to": [
             {
@@ -124,14 +128,14 @@ def send_otp_email(email, otp):
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 201:
             print(f"[OK] Email sent successfully to {email}")
-            return True
+            return True, "Email sent successfully"
         else:
-            print(f"[ERROR] Brevo failed to send email. Status Code: {response.status_code}")
-            print(f"Response: {response.text}")
+            err_msg = f"Brevo HTTP {response.status_code}: {response.text}"
+            print(f"[ERROR] Brevo failed: {err_msg}")
             try:
                 log_path = os.path.join(settings.BASE_DIR, "brevo_debug.log")
                 with open(log_path, "a") as f:
-                    f.write(f"[{datetime.utcnow()}] Failed to send to {email}. Status: {response.status_code}. Response: {response.text}\n")
+                    f.write(f"[{datetime.utcnow()}] Failed to send to {email}. Details: {err_msg}\n")
             except Exception as log_error:
                 print(f"Failed to write to debug log: {log_error}")
             
@@ -139,23 +143,14 @@ def send_otp_email(email, otp):
                 print(f"\n========================================================")
                 print(f"[DEBUG FALLBACK] Brevo failed. OTP for {email} is: {otp}")
                 print(f"========================================================\n")
-                return True
-            return False
+                return True, "Debug mode fallback"
+            return False, err_msg
     except Exception as e:
-        print(f"[ERROR] Connection to Brevo failed: {e}")
-        try:
-            log_path = os.path.join(settings.BASE_DIR, "brevo_debug.log")
-            with open(log_path, "a") as f:
-                f.write(f"[{datetime.utcnow()}] Connection error to Brevo. Details: {e}\n")
-        except Exception as log_error:
-            print(f"Failed to write to debug log: {log_error}")
-        
+        err_msg = f"Connection error: {e}"
+        print(f"[ERROR] Connection to Brevo failed: {err_msg}")
         if settings.DEBUG:
-            print(f"\n========================================================")
-            print(f"[DEBUG FALLBACK] Brevo connection failed. OTP for {email} is: {otp}")
-            print(f"========================================================\n")
-            return True
-        return False
+            return True, "Debug mode fallback"
+        return False, err_msg
 
 
 def create_user(data):
@@ -176,9 +171,9 @@ def create_user(data):
     create_and_save_otp(user.email, otp)
     
     # Trigger the OTP email send
-    email_sent = send_otp_email(user.email, otp)
+    email_sent, email_msg = send_otp_email(user.email, otp)
     
-    return user, email_sent
+    return user, email_sent, email_msg
 
 
 def resend_otp_service(email: str):
@@ -200,26 +195,30 @@ def resend_otp_service(email: str):
     create_and_save_otp(user.email, otp)
     
     # Send email
-    email_sent = send_otp_email(user.email, otp)
+    email_sent, email_msg = send_otp_email(user.email, otp)
     if not email_sent:
-        return False, "Failed to send OTP email. Please try again later."
+        return False, f"Failed to send OTP: {email_msg}"
         
     return True, "OTP sent to your email."
 
 
 def send_reset_otp_email(email, otp):
+    api_key = (settings.BREVO_API_KEY or "").strip().strip('"').strip("'")
+    sender_email = (settings.BREVO_SENDER_EMAIL or "").strip().strip('"').strip("'")
+    sender_name = (settings.BREVO_SENDER_NAME or "VyaparSetu").strip().strip('"').strip("'")
+
     url = "https://api.brevo.com/v3/smtp/email"
 
     headers = {
         "accept": "application/json",
-        "api-key": settings.BREVO_API_KEY,
+        "api-key": api_key,
         "content-type": "application/json",
     }
 
     payload = {
         "sender": {
-            "name": settings.BREVO_SENDER_NAME,
-            "email": settings.BREVO_SENDER_EMAIL,
+            "name": sender_name,
+            "email": sender_email,
         },
         "to": [
             {
