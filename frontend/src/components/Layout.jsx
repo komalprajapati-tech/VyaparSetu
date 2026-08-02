@@ -108,23 +108,25 @@ function Layout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#eef5f6] font-sans flex text-slate-800">
+        <div className="min-h-screen bg-[#f8fafc] font-sans flex text-slate-800">
             {/* Sidebar (Desktop) */}
             <aside
-                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#113830] text-white border-r border-emerald-950/20 transform lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between p-6 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#09261e] text-white border-r border-[#09261e] transform lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between p-5 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
                 <div className="flex flex-col h-full justify-between">
                     <div>
                         {/* Logo / Header */}
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center justify-between mb-6 px-1">
                             <div>
-                                <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-1.5">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-[#00df9a]" />
-                                    Vyapar<span className="text-[#00df9a]">Setu</span>
+                                <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-lg bg-[#00a86b] flex items-center justify-center text-white">
+                                        <TrendingUp size={18} strokeWidth={2.5} />
+                                    </div>
+                                    Vyapar<span className="text-[#00a86b]">Setu</span>
                                 </h2>
-                                <div className="mt-1">
-                                    <p className="text-xs font-bold text-slate-300 truncate w-40">{user?.businessName || "Komal Store"}</p>
-                                    <p className="text-[9px] font-black tracking-widest text-[#00df9a] mt-0.5 uppercase">Premium Plan</p>
+                                <div className="mt-2 pl-1">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate w-40">{user?.businessName || "DEV'S STORE"}</p>
+                                    <span className="inline-block bg-[#00a86b]/15 text-[#00a86b] text-[9px] font-bold px-2 py-0.5 rounded-md border border-[#00a86b]/20 uppercase mt-0.5">PREMIUM PLAN</span>
                                 </div>
                             </div>
                             <button
@@ -136,7 +138,7 @@ function Layout({ children }) {
                         </div>
 
                         {/* Navigation links */}
-                        <nav className="space-y-1 mt-6">
+                        <nav className="space-y-1.5 mt-8">
                             {navItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname === item.path ||
@@ -148,15 +150,12 @@ function Layout({ children }) {
                                             navigate(item.path);
                                             setSidebarOpen(false);
                                         }}
-                                        className={`relative w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${isActive
-                                                ? "bg-white/10 border border-white/20 text-white shadow-xs"
+                                        className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
+                                                ? "bg-white/10 text-white shadow-xs font-extrabold"
                                                 : "text-slate-400 hover:bg-white/5 hover:text-white"
                                             }`}
                                     >
-                                        {isActive && (
-                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white rounded-r-md" />
-                                        )}
-                                        <Icon size={16} strokeWidth={isActive ? 2 : 1.75} />
+                                        <Icon size={18} strokeWidth={isActive ? 2.2 : 1.75} className={isActive ? "text-white" : "text-slate-400"} />
                                         {item.name}
                                     </button>
                                 );
@@ -164,13 +163,13 @@ function Layout({ children }) {
                         </nav>
                     </div>
 
-                    {/* Bottom Logout */}
-                    <div className="pt-4 border-t border-white/10">
+                    {/* Bottom Settings & Logout */}
+                    <div className="pt-4 space-y-1 border-t border-white/10">
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
                         >
-                            <LogOut size={16} strokeWidth={1.75} />
+                            <LogOut size={18} strokeWidth={2} />
                             {t.logout || "Logout"}
                         </button>
                     </div>
@@ -188,22 +187,22 @@ function Layout({ children }) {
             {/* Main Content Workspace */}
             <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
                 {/* Header Navbar */}
-                <header className="px-6 py-4 flex items-center justify-between z-20 sticky top-0 bg-[#eef5f6]/85 backdrop-blur-md">
+                <header className="px-6 py-4 flex items-center justify-between z-20 sticky top-0 bg-[#f8fafc]/90 backdrop-blur-md">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden text-slate-600 hover:text-slate-800 p-1.5 bg-white border border-slate-200/80 rounded-lg shadow-xs cursor-pointer"
+                            className="lg:hidden text-slate-600 hover:text-slate-800 p-2 bg-white border border-slate-200/80 rounded-xl shadow-xs cursor-pointer"
                         >
                             <Menu size={20} />
                         </button>
 
                         {/* Search bar inside header */}
-                        <div className="hidden md:flex items-center gap-2.5 px-4 py-2 bg-slate-200/40 border border-slate-350/5 rounded-full w-80 shadow-xs">
-                            <Search size={14} className="text-slate-500" />
+                        <div className="hidden md:flex items-center gap-2.5 px-4 py-2.5 bg-white border border-slate-200/80 rounded-2xl w-96 shadow-xs">
+                            <Search size={16} className="text-slate-400" />
                             <input
                                 type="text"
                                 placeholder="Search items, invoices, customers..."
-                                className="bg-transparent border-none outline-none text-xs w-full text-slate-700 placeholder-slate-400"
+                                className="bg-transparent border-none outline-none text-xs w-full text-slate-700 placeholder-slate-400 font-medium"
                             />
                         </div>
                     </div>
@@ -218,30 +217,30 @@ function Layout({ children }) {
                                     setLangOpen(!langOpen);
                                     setNotifOpen(false);
                                 }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs font-bold text-slate-700 shadow-xs cursor-pointer hover:bg-slate-50 transition"
+                                className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl text-xs font-bold text-slate-700 shadow-xs cursor-pointer hover:bg-slate-50 transition"
                             >
+                                <Globe size={14} className="text-slate-500" />
                                 <span>{getLanguageLabel(language)}</span>
-                                <Globe size={13} className="text-slate-500" />
                                 <ChevronDown size={12} className="text-slate-400" />
                             </button>
                             
                             {langOpen && (
-                                <div className="absolute right-0 mt-2 w-36 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-1 font-sans">
+                                <div className="absolute right-0 mt-2 w-36 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-1 font-sans">
                                     <button 
                                         onClick={() => handleLanguageChange("en")}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-50 ${language === "en" ? "text-emerald-700 bg-emerald-50/20 font-bold" : "text-slate-700"}`}
+                                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-50 ${language === "en" ? "text-emerald-700 bg-emerald-50/50 font-bold" : "text-slate-700"}`}
                                     >
                                         English (EN)
                                     </button>
                                     <button 
                                         onClick={() => handleLanguageChange("hi")}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-50 ${language === "hi" ? "text-emerald-700 bg-emerald-50/20 font-bold" : "text-slate-700"}`}
+                                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-50 ${language === "hi" ? "text-emerald-700 bg-emerald-50/50 font-bold" : "text-slate-700"}`}
                                     >
                                         हिंदी (HI)
                                     </button>
                                     <button 
                                         onClick={() => handleLanguageChange("gu")}
-                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-50 ${language === "gu" ? "text-emerald-700 bg-emerald-50/20 font-bold" : "text-slate-700"}`}
+                                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-50 ${language === "gu" ? "text-emerald-700 bg-emerald-50/50 font-bold" : "text-slate-700"}`}
                                     >
                                         ગુજરાતી (GU)
                                     </button>
@@ -257,11 +256,11 @@ function Layout({ children }) {
                                     setLangOpen(false);
                                     fetchNotifications();
                                 }}
-                                className="text-slate-655 p-2 bg-white border border-slate-200/80 rounded-lg hover:bg-slate-50 transition relative shadow-xs cursor-pointer flex items-center justify-center"
+                                className="text-slate-600 p-2.5 bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50 transition relative shadow-xs cursor-pointer flex items-center justify-center"
                             >
-                                <Bell size={15} strokeWidth={2} />
+                                <Bell size={16} strokeWidth={2} />
                                 {notifications.filter(n => !n.isRead).length > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-650 text-[8px] font-bold text-white flex items-center justify-center shadow-xs">
+                                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-[8px] font-bold text-white flex items-center justify-center shadow-xs">
                                         {notifications.filter(n => !n.isRead).length}
                                     </span>
                                 )}
@@ -283,7 +282,7 @@ function Layout({ children }) {
                                                 <div 
                                                     key={n.id} 
                                                     onClick={() => handleMarkRead(n.id)}
-                                                    className={`p-3 rounded-xl border transition-all relative flex flex-col justify-between hover:bg-slate-55/40 cursor-pointer ${n.isRead ? 'bg-white border-slate-100 text-slate-500' : 'bg-emerald-50/20 border-emerald-100/50 text-slate-850'}`}
+                                                    className={`p-3 rounded-xl border transition-all relative flex flex-col justify-between hover:bg-slate-50/40 cursor-pointer ${n.isRead ? 'bg-white border-slate-100 text-slate-500' : 'bg-emerald-50/20 border-emerald-100/50 text-slate-850'}`}
                                                 >
                                                     <div className="flex items-start justify-between gap-2">
                                                         <div className="flex items-start gap-1.5">
@@ -315,12 +314,9 @@ function Layout({ children }) {
                         {/* Calendar */}
                         <div className="relative">
                             <button 
-                                className={`text-slate-655 p-2 bg-white border rounded-lg hover:bg-slate-50 transition shadow-xs flex items-center justify-center ${selectedDate ? "border-emerald-500 bg-emerald-50/20" : "border-slate-200/80"}`}
+                                className={`text-slate-600 p-2.5 bg-white border rounded-xl hover:bg-slate-50 transition shadow-xs flex items-center justify-center ${selectedDate ? "border-emerald-500 bg-emerald-50/20" : "border-slate-200/80"}`}
                             >
-                                <Calendar size={15} strokeWidth={2} className={selectedDate ? "text-emerald-700" : ""} />
-                                {selectedDate && (
-                                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-600 border border-white" />
-                                )}
+                                <Calendar size={16} strokeWidth={2} className={selectedDate ? "text-emerald-700" : ""} />
                             </button>
                             <input 
                                 type="date" 
@@ -334,21 +330,21 @@ function Layout({ children }) {
                         </div>
  
                         {/* Owner Profile Container */}
-                        <div className="flex items-center gap-2.5 pl-3 border-l border-slate-300/40">
-                            <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center border border-emerald-400/20 shadow-xs text-xs font-bold font-sans overflow-hidden">
+                        <div className="flex items-center gap-2.5 pl-3">
+                            <div className="text-right hidden md:block">
+                                <h1 className="text-xs font-extrabold text-slate-900 leading-tight">
+                                    {user?.ownerFullName || "kiran thakor"}
+                                </h1>
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-emerald-600 block">
+                                    RETAILER
+                                </span>
+                            </div>
+                            <div className="w-9 h-9 rounded-full bg-[#00a86b] text-white flex items-center justify-center shadow-sm text-sm font-bold font-sans overflow-hidden">
                                 {user?.profilePic ? (
                                     <img src={user.profilePic} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     user?.ownerFullName ? user.ownerFullName.charAt(0).toUpperCase() : "K"
                                 )}
-                            </div>
-                            <div className="text-left hidden md:block">
-                                <h1 className="text-xs font-bold text-slate-800 leading-tight">
-                                    {user?.ownerFullName || "Komal Prajapati"}
-                                </h1>
-                                <span className="text-[9px] uppercase font-extrabold tracking-wider text-slate-400 block">
-                                    {user?.businessType || "OWNER"}
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -359,15 +355,6 @@ function Layout({ children }) {
                     {children}
                 </main>
 
-                {/* Floating Quick Action Button */}
-                {location.pathname !== "/add-entry" && (
-                    <button
-                        onClick={() => navigate("/add-entry")}
-                        className="fixed bottom-6 right-6 z-30 w-12 h-12 rounded-full text-white shadow-lg bg-[#10b981] hover:bg-[#0d9668] flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
-                    >
-                        <Plus size={24} />
-                    </button>
-                )}
             </div>
         </div>
     );
