@@ -65,7 +65,7 @@ function Register() {
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-[#f8fafc] font-sans text-slate-700">
             {/* Top Logo */}
             <div className="flex items-center gap-2.5 mb-8">
-                <div className="w-10 h-10 rounded-xl bg-[#475569] flex items-center justify-center text-white shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-[#475569] flex items-center justify-center text-[#ffffff] shadow-sm">
                     <Wallet size={22} className="stroke-[2.2]" />
                 </div>
                 <span className="text-2xl font-bold text-slate-900 tracking-tight">VyaparSetu</span>

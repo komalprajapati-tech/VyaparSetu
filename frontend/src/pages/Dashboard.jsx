@@ -25,7 +25,9 @@ import {
     TrendingUp,
     AlertTriangle,
     FileText,
-    BookOpen
+    BookOpen,
+    PieChart,
+    Plus
 } from "lucide-react";
 
 

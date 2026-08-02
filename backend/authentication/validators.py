@@ -8,7 +8,6 @@ def validate_register(data):
         "email",
         "password",
         "confirmPassword",
-        "agreeToTerms",
     ]
 
     for field in required_fields:
@@ -25,8 +24,5 @@ def validate_register(data):
 
     if data["password"] != data["confirmPassword"]:
         return False, "Passwords do not match."
-
-    if data["agreeToTerms"] is not True:
-        return False, "You must accept the Terms & Conditions."
 
     return True, None

@@ -15,7 +15,8 @@ import {
     Globe,
     Calendar,
     ChevronLeft,
-    ChevronDown
+    ChevronDown,
+    TrendingUp
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useState, useEffect } from "react";
