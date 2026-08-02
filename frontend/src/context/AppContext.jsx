@@ -16,7 +16,7 @@ export function AppProvider({ children }) {
 
     // Global date states
     const [selectedDate, setSelectedDate] = useState("");
-    const [dateFilter, setDateFilter] = useState("month");
+    const [dateFilter, setDateFilter] = useState("today");
 
     useEffect(() => {
         if (user) {

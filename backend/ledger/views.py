@@ -266,13 +266,19 @@ def ledger_summary(request):
             end_date = today_start + timedelta(days=1)
         elif period == "week":
             start_date = today_start - timedelta(days=today_start.weekday())
-            end_date = today_start + timedelta(days=1)
+            end_date = start_date + timedelta(days=7)
         elif period == "year":
             start_date = datetime(now.year, 1, 1)
-            end_date = today_start + timedelta(days=1)
+            if now.month == 12:
+                end_date = datetime(now.year + 1, 1, 1)
+            else:
+                end_date = datetime(now.year, now.month + 1, 1)
         else: # month
             start_date = datetime(now.year, now.month, 1)
-            end_date = today_start + timedelta(days=1)
+            if now.month == 12:
+                end_date = datetime(now.year + 1, 1, 1)
+            else:
+                end_date = datetime(now.year, now.month + 1, 1)
             period = "month"
 
     # Filtered entries for the selected range
@@ -340,8 +346,22 @@ def ledger_summary(request):
                 "income": w_income,
                 "expense": w_expense
             })
-    else: # today, week, or specific date
-        # daily trend for the last 7 days ending at end_date
+    elif period == "week":
+        # 7 days of the selected week (Mon to Sun)
+        days_name = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i in range(7):
+            d_start = start_date + timedelta(days=i)
+            d_end = d_start + timedelta(days=1)
+            d_entries = Entry.objects(user_email=user_email, date__gte=d_start, date__lt=d_end)
+            d_income = sum(e.amount for e in d_entries if e.type == "income")
+            d_expense = sum(e.amount for e in d_entries if e.type == "expense")
+            trend_data.append({
+                "date": f"{days_name[i]} {d_start.strftime('%d')}",
+                "income": d_income,
+                "expense": d_expense
+            })
+    else: # today or specific date
+        # 24 hours / hourly or 7 day window
         for i in range(6, -1, -1):
             day = end_date - timedelta(days=i+1)
             day_start = datetime(day.year, day.month, day.day)

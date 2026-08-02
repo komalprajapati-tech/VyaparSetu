@@ -30,6 +30,7 @@ function Layout({ children }) {
     const [notifOpen, setNotifOpen] = useState(false);
     const [langOpen, setLangOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const [activeToast, setActiveToast] = useState(null);
 
     const fetchNotifications = () => {
         if (!token) return;
@@ -42,6 +43,11 @@ function Layout({ children }) {
         .then(data => {
             if (data.success) {
                 setNotifications(data.notifications);
+                // Trigger Toast pop-up for unread notifications
+                const unreadNotifs = data.notifications.filter(n => !n.isRead);
+                if (unreadNotifs.length > 0 && !activeToast) {
+                    setActiveToast(unreadNotifs[0]);
+                }
             }
         })
         .catch(err => console.error("Error fetching notifications:", err));
@@ -355,6 +361,48 @@ function Layout({ children }) {
                 <main className="flex-1 p-6 pt-2 relative">
                     {children}
                 </main>
+
+                {/* Floating Reminder Toast Pop-up */}
+                {activeToast && (
+                    <div className="fixed top-20 right-6 z-50 max-w-sm w-full bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700/60 animate-in slide-in-from-top-4 duration-300 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Bell size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h5 className="text-xs font-black text-amber-400 uppercase tracking-wider">{activeToast.title}</h5>
+                            <p className="text-xs text-slate-200 mt-1 leading-snug font-medium">{activeToast.message}</p>
+                            <div className="flex items-center gap-3 mt-3">
+                                <button
+                                    onClick={() => {
+                                        handleMarkRead(activeToast.id);
+                                        setActiveToast(null);
+                                    }}
+                                    className="text-[11px] font-extrabold bg-[#00a86b] hover:bg-[#00965e] text-white px-3 py-1 rounded-lg transition"
+                                >
+                                    Dismiss
+                                </button>
+                                {activeToast.type === 'udhaar_overdue' && (
+                                    <button
+                                        onClick={() => {
+                                            handleMarkRead(activeToast.id);
+                                            setActiveToast(null);
+                                            navigate("/udhaar");
+                                        }}
+                                        className="text-[11px] font-bold text-amber-300 hover:underline"
+                                    >
+                                        View Udhaar Book
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setActiveToast(null)}
+                            className="text-slate-400 hover:text-white text-xs font-bold p-1"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                )}
 
             </div>
         </div>

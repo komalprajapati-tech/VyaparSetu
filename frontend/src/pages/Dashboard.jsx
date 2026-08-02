@@ -131,17 +131,23 @@ function Dashboard() {
     const periodNet = summary?.net || 0;
     const totalUdhaar = summary?.total_pending_udhaar || 0;
 
-    // --- Dynamic SVG Line Chart calculations ---
+    // --- Dynamic SVG Bar Chart calculations ---
     const trend = summary?.trend || [];
     const maxVal = Math.max(...trend.map(d => Math.max(d.income, d.expense)), 100);
-    const chartHeight = 160;
+    const chartHeight = 180;
     const chartWidth = 500;
     const paddingLeft = 45;
     const paddingRight = 20;
-    const paddingTop = 20;
+    const paddingTop = 25;
     const paddingBottom = 30;
 
-    const getX = (index) => paddingLeft + (index * (chartWidth - paddingLeft - paddingRight) / Math.max(trend.length - 1, 1));
+    const getX = (index) => {
+        const count = trend.length;
+        if (count <= 1) return paddingLeft + (chartWidth - paddingLeft - paddingRight) / 2;
+        const availableW = chartWidth - paddingLeft - paddingRight;
+        const step = availableW / count;
+        return paddingLeft + step * index + step / 2;
+    };
     const getY = (value) => chartHeight - paddingBottom - (value * (chartHeight - paddingTop - paddingBottom) / maxVal);
 
     // Path generators
@@ -223,7 +229,7 @@ function Dashboard() {
                     <div className="flex bg-slate-200/50 p-1 rounded-xl w-fit">
                         {["Today", "Weekly", "Monthly", "Year"].map((filter) => {
                             const filterVal = filter === "Weekly" ? "week" : filter === "Monthly" ? "month" : filter.toLowerCase();
-                            const isActive = (!selectedDate && dateFilter === filterVal) || (filter === "Monthly" && dateFilter === "month");
+                            const isActive = !selectedDate && dateFilter === filterVal;
                             return (
                                 <button 
                                     key={filter} 
@@ -349,16 +355,16 @@ function Dashboard() {
                 {/* Charts Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    {/* Sales vs Expense Line Trend */}
+                    {/* Sales vs Expense Grouped Bar Chart */}
                     <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs lg:col-span-2 relative min-h-[340px] flex flex-col justify-between">
                         <div className="flex items-center justify-between mb-4">
                             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">SALES VS EXPENSE TREND</h4>
                             <div className="flex gap-4 text-xs font-semibold">
                                 <span className="flex items-center gap-1.5 text-slate-600">
-                                    <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" /> Income
+                                    <span className="w-3 h-3 bg-[#00a86b] rounded-md" /> Income
                                 </span>
                                 <span className="flex items-center gap-1.5 text-slate-600">
-                                    <span className="w-2.5 h-2.5 bg-slate-400 rounded-full" /> Expense
+                                    <span className="w-3 h-3 bg-[#064e3b] rounded-md" /> Expense
                                 </span>
                             </div>
                         </div>
@@ -381,83 +387,137 @@ function Dashboard() {
                         ) : (
                             <div className="relative w-full">
                                 <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto overflow-visible">
-                                    {/* Grid & Y-Axis Labels */}
-                                    {[0.0, 0.25, 0.5, 0.75, 1.0].map((p, idx) => {
-                                        const val = maxVal * p;
-                                        const y = chartHeight - paddingBottom - (val * (chartHeight - paddingTop - paddingBottom) / maxVal);
-                                        let label = `₹0`;
-                                        if (val >= 1000) {
-                                            label = `₹${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k`;
-                                        } else if (val > 0) {
-                                            label = `₹${val.toFixed(0)}`;
-                                        }
-                                        return (
-                                            <g key={idx}>
-                                                <text 
-                                                    x={paddingLeft - 8} 
-                                                    y={y + 3} 
-                                                    textAnchor="end" 
-                                                    className="text-[8px] fill-slate-400 font-bold"
-                                                >
-                                                    {label}
-                                                </text>
-                                                {p > 0 && p < 1 && (
-                                                    <line 
-                                                        x1={paddingLeft} 
-                                                        y1={y} 
-                                                        x2={chartWidth - paddingRight} 
-                                                        y2={y} 
-                                                        stroke="#f1f5f9" 
-                                                        strokeWidth={1} 
-                                                    />
-                                                )}
-                                            </g>
-                                        );
-                                    })}
+                                     {/* Horizontal Light Grid Lines & Y-Axis Labels */}
+                                     {[0.0, 0.25, 0.5, 0.75, 1.0].map((p, idx) => {
+                                         const val = maxVal * p;
+                                         const y = chartHeight - paddingBottom - (val * (chartHeight - paddingTop - paddingBottom) / maxVal);
+                                         let label = `0`;
+                                         if (val >= 1000) {
+                                             label = `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k`;
+                                         } else if (val > 0) {
+                                             label = `${val.toFixed(0)}`;
+                                         }
+                                         return (
+                                             <g key={idx}>
+                                                 <text 
+                                                     x={paddingLeft - 10} 
+                                                     y={y + 3} 
+                                                     textAnchor="end" 
+                                                     className="text-[9px] fill-slate-350 font-semibold"
+                                                 >
+                                                     {label}
+                                                 </text>
+                                                 {p >= 0 && (
+                                                     <line 
+                                                         x1={paddingLeft} 
+                                                         y1={y} 
+                                                         x2={chartWidth - paddingRight} 
+                                                         y2={y} 
+                                                         stroke="#f1f5f9" 
+                                                         strokeWidth={1} 
+                                                     />
+                                                 )}
+                                             </g>
+                                         );
+                                     })}
 
-                                    {/* Axes */}
-                                    <line x1={paddingLeft} y1={chartHeight - paddingBottom} x2={chartWidth - paddingRight} y2={chartHeight - paddingBottom} stroke="#cbd5e1" strokeWidth={1} strokeOpacity={0.6} />
-                                    <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={chartHeight - paddingBottom} stroke="#cbd5e1" strokeWidth={1} strokeOpacity={0.6} />
+                                     {/* Grouped Pill Bars */}
+                                     {trend.map((d, i) => {
+                                         const xGroup = getX(i);
+                                         const count = trend.length;
+                                         const step = (chartWidth - paddingLeft - paddingRight) / count;
+                                         const barWidth = 14; // Pill rounded bar width
+                                         const barGap = 4;
+                                         const plotHeight = chartHeight - paddingTop - paddingBottom;
+                                         const baseY = chartHeight - paddingBottom;
+                                         
+                                         const incomeH = Math.max((d.income * plotHeight) / maxVal, 0);
+                                         const expenseH = Math.max((d.expense * plotHeight) / maxVal, 0);
 
-                                    {/* Paths */}
-                                    <path d={incomePath} fill="none" stroke="#00a86b" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d={expensePath} fill="none" stroke="#64748b" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                                         const incomeY = baseY - incomeH;
+                                         const expenseY = baseY - expenseH;
 
-                                    {/* Circles & Hover detection */}
-                                    {trend.map((d, i) => {
-                                        const x = getX(i);
-                                        const yIncome = getY(d.income);
-                                        const yExpense = getY(d.expense);
-                                        const midY = (yIncome + yExpense) / 2;
-                                        return (
-                                            <g key={i}>
-                                                <circle cx={x} cy={yIncome} r={3} fill="#00a86b" stroke="#fff" strokeWidth={1} className="pointer-events-none" />
-                                                <circle cx={x} cy={yExpense} r={3} fill="#64748b" stroke="#fff" strokeWidth={1} className="pointer-events-none" />
-                                                <text x={x} y={chartHeight - 8} textAnchor="middle" className="text-[8px] fill-slate-450 font-bold pointer-events-none">{d.date}</text>
-                                                
-                                                {/* Transparent column overlay for hover detection */}
-                                                <rect
-                                                    x={x - 15}
-                                                    y={paddingTop}
-                                                    width={30}
-                                                    height={chartHeight - paddingTop - paddingBottom}
-                                                    fill="transparent"
-                                                    className="cursor-pointer"
-                                                    onMouseEnter={() => {
-                                                        setHoveredPoint({
-                                                            x: x,
-                                                            y: midY,
-                                                            date: d.date,
-                                                            income: d.income,
-                                                            expense: d.expense,
-                                                            profit: d.income - d.expense
-                                                        });
-                                                    }}
-                                                    onMouseLeave={() => setHoveredPoint(null)}
-                                                />
-                                            </g>
-                                        );
-                                    })}
+                                         const incomeBarX = xGroup - barWidth - (barGap / 2);
+                                         const expenseBarX = xGroup + (barGap / 2);
+
+                                         return (
+                                             <g key={i}>
+                                                 {/* Income Bar (Light Bright Green Pill) */}
+                                                 {incomeH > 0 ? (
+                                                     <rect
+                                                         x={incomeBarX}
+                                                         y={incomeY}
+                                                         width={barWidth}
+                                                         height={incomeH}
+                                                         rx={barWidth / 2}
+                                                         ry={barWidth / 2}
+                                                         fill="#00c853"
+                                                         className="transition-all duration-300 hover:opacity-90"
+                                                     />
+                                                 ) : (
+                                                     <rect
+                                                         x={incomeBarX}
+                                                         y={baseY - 4}
+                                                         width={barWidth}
+                                                         height={4}
+                                                         rx={2}
+                                                         ry={2}
+                                                         fill="#e2e8f0"
+                                                     />
+                                                 )}
+
+                                                 {/* Expense Bar (Deep Emerald Dark Green Pill) */}
+                                                 {expenseH > 0 ? (
+                                                     <rect
+                                                         x={expenseBarX}
+                                                         y={expenseY}
+                                                         width={barWidth}
+                                                         height={expenseH}
+                                                         rx={barWidth / 2}
+                                                         ry={barWidth / 2}
+                                                         fill="#064e3b"
+                                                         className="transition-all duration-300 hover:opacity-90"
+                                                     />
+                                                 ) : (
+                                                     <rect
+                                                         x={expenseBarX}
+                                                         y={baseY - 4}
+                                                         width={barWidth}
+                                                         height={4}
+                                                         rx={2}
+                                                         ry={2}
+                                                         fill="#cbd5e1"
+                                                     />
+                                                 )}
+                                                 
+                                                 {/* X Axis Date Label */}
+                                                 <text x={xGroup} y={chartHeight - 6} textAnchor="middle" className="text-[9px] fill-slate-400 font-semibold pointer-events-none">
+                                                     {d.date}
+                                                 </text>
+
+                                                 {/* Hover Overlay */}
+                                                 <rect
+                                                     x={xGroup - step / 2}
+                                                     y={paddingTop}
+                                                     width={step}
+                                                     height={plotHeight}
+                                                     fill="transparent"
+                                                     className="cursor-pointer"
+                                                     onMouseEnter={() => {
+                                                         setHoveredPoint({
+                                                             x: xGroup,
+                                                             y: Math.min(incomeY, expenseY),
+                                                             date: d.date,
+                                                             income: d.income,
+                                                             expense: d.expense,
+                                                             profit: d.income - d.expense
+                                                         });
+                                                     }}
+                                                     onMouseLeave={() => setHoveredPoint(null)}
+                                                 />
+                                             </g>
+                                         );
+                                     })}
                                 </svg>
                                 
                                 {/* Tooltip Overlay */}
@@ -473,7 +533,7 @@ function Dashboard() {
                                         <p className="font-extrabold border-b border-white/15 pb-1 mb-1.5 text-center text-slate-300">{hoveredPoint.date}</p>
                                         <div className="space-y-0.5">
                                             <p className="flex justify-between gap-4"><span className="text-slate-400">Income:</span> <span className="text-emerald-400 font-bold">₹{hoveredPoint.income.toLocaleString("en-IN")}</span></p>
-                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Expense:</span> <span className="text-rose-400 font-bold">₹{hoveredPoint.expense.toLocaleString("en-IN")}</span></p>
+                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Expense:</span> <span className="text-emerald-200 font-bold">₹{hoveredPoint.expense.toLocaleString("en-IN")}</span></p>
                                             <p className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-1 font-bold">
                                                 <span>Profit:</span> 
                                                 <span className={hoveredPoint.profit >= 0 ? "text-emerald-400" : "text-rose-400"}>
