@@ -6,6 +6,8 @@ import {
     BookOpen,
     PieChart,
     Settings,
+    Palette,
+    Target,
     LogOut,
     Plus,
     Menu,
@@ -106,6 +108,8 @@ function Layout({ children }) {
         { name: t.reports || "Reports", path: "/reports", icon: FileText },
         { name: t.udhaar || "Udhaar (Credit Book)", path: "/udhaar", icon: BookOpen },
         { name: t.expenses || "Expenses", path: "/expenses", icon: PieChart },
+        { name: "Appearance", path: "/appearance", icon: Palette },
+        { name: "Personal Planning", path: "/personal-planning", icon: Target },
         { name: t.settings || "Settings", path: "/settings", icon: Settings }
     ];
 
@@ -118,7 +122,8 @@ function Layout({ children }) {
         <div className="min-h-screen bg-[#f8fafc] font-sans flex text-slate-800">
             {/* Sidebar (Desktop) */}
             <aside
-                className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#09261e] text-white border-r border-[#09261e] transform lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between p-5 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+                style={{ backgroundColor: "var(--color-sidebar-bg)" }}
+                className={`fixed inset-y-0 left-0 z-40 w-64 text-white border-r border-white/5 transform lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between p-5 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
                 <div className="flex flex-col h-full justify-between">
                     <div>
@@ -126,14 +131,22 @@ function Layout({ children }) {
                         <div className="flex items-center justify-between mb-6 px-1">
                             <div>
                                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-[#00a86b] flex items-center justify-center text-white">
+                                    <div 
+                                        style={{ backgroundColor: "var(--color-accent)" }}
+                                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                                    >
                                         <TrendingUp size={18} strokeWidth={2.5} />
                                     </div>
-                                    Vyapar<span className="text-[#00a86b]">Setu</span>
+                                    Vyapar<span style={{ color: "var(--color-accent)" }}>Setu</span>
                                 </h2>
                                 <div className="mt-2 pl-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate w-40">{user?.businessName || "DEV'S STORE"}</p>
-                                    <span className="inline-block bg-[#00a86b]/15 text-[#00a86b] text-[9px] font-bold px-2 py-0.5 rounded-md border border-[#00a86b]/20 uppercase mt-0.5">PREMIUM PLAN</span>
+                                    <span 
+                                        style={{ color: "var(--color-accent)", backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                                        className="inline-block text-[9px] font-bold px-2 py-0.5 rounded-md border border-white/10 uppercase mt-0.5"
+                                    >
+                                        PREMIUM PLAN
+                                    </span>
                                 </div>
                             </div>
                             <button

@@ -56,38 +56,50 @@ export function AppProvider({ children }) {
         let hover = "#16372b";
         let border = "#1F4D3D15";
         let bg = "#FAF6F0";
+        let sidebarBg = "#09261e";
+        let accent = "#10b981";
 
         if (themeName === "forest_green") {
             primary = "#1F4D3D";
-            light = "#F0F5F3";
+            light = "#E8F5EC";
             hover = "#16372b";
             border = "#1F4D3D15";
-            bg = "#FAF6F0";
+            bg = "#f8fafc";
+            sidebarBg = "#09261e";
+            accent = "#10b981";
         } else if (themeName === "deep_blue") {
             primary = "#1E3A5F";
-            light = "#F0F4F8";
+            light = "#EBF3FA";
             hover = "#152943";
             border = "#1E3A5F15";
-            bg = "#FAF6F0";
+            bg = "#f8fafc";
+            sidebarBg = "#0d1b2a";
+            accent = "#3b82f6";
         } else if (themeName === "coffee_shop") {
-            primary = "#6E473B"; // Dark accent
-            light = "#F3EBE0";   // Medium-light cream
-            hover = "#54362d";   // Darker shade of primary button
-            border = "#BEB5A9";  // Light tone
-            bg = "#FAF6F0";      // Soft cream
+            primary = "#6E473B";
+            light = "#F7EFE9";
+            hover = "#54362d";
+            border = "#BEB5A9";
+            bg = "#FAF6F0";
+            sidebarBg = "#2d1c17";
+            accent = "#d97706";
         } else if (themeName === "custom") {
-            primary = customColors.primary || localStorage.getItem("vyaparsetu_custom_primary") || "#6E473B";
-            light = customColors.light || localStorage.getItem("vyaparsetu_custom_light") || "#F3EBE0";
-            bg = customColors.bg || localStorage.getItem("vyaparsetu_custom_bg") || "#FAF6F0";
+            primary = customColors.primary || localStorage.getItem("vyaparsetu_custom_primary") || "#1F4D3D";
+            light = customColors.light || localStorage.getItem("vyaparsetu_custom_light") || "#E8F5EC";
+            bg = customColors.bg || localStorage.getItem("vyaparsetu_custom_bg") || "#f8fafc";
             hover = primary;
             border = primary + "20";
+            sidebarBg = primary;
+            accent = primary;
         }
 
-        document.documentElement.style.setProperty('--primary-color', primary);
-        document.documentElement.style.setProperty('--primary-color-light', light);
-        document.documentElement.style.setProperty('--primary-color-hover', hover);
-        document.documentElement.style.setProperty('--primary-color-border', border);
-        document.documentElement.style.setProperty('--bg-color', bg);
+        document.documentElement.style.setProperty('--color-primary', primary);
+        document.documentElement.style.setProperty('--color-primary-light', light);
+        document.documentElement.style.setProperty('--color-primary-hover', hover);
+        document.documentElement.style.setProperty('--color-primary-border', border);
+        document.documentElement.style.setProperty('--color-sidebar-bg', sidebarBg);
+        document.documentElement.style.setProperty('--color-accent', accent);
+        document.documentElement.style.setProperty('--color-page-bg', bg);
     };
 
     useEffect(() => {

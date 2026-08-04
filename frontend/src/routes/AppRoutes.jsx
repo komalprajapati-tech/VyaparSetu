@@ -12,6 +12,8 @@ import Reports from "../pages/Reports";
 import Udhaar from "../pages/Udhaar";
 import Expenses from "../pages/Expenses";
 import Settings from "../pages/Settings";
+import Appearance from "../pages/Appearance";
+import PersonalPlanning from "../pages/PersonalPlanning";
 
 // Helper to check token expiration
 const isTokenExpired = (t) => {
@@ -115,6 +117,22 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Expenses />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/appearance" 
+                    element={
+                        <ProtectedRoute>
+                            <Appearance />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/personal-planning" 
+                    element={
+                        <ProtectedRoute>
+                            <PersonalPlanning />
                         </ProtectedRoute>
                     } 
                 />

@@ -1,26 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: var(--primary-color);
-  --color-primary-light: var(--primary-color-light);
-  --color-primary-hover: var(--primary-color-hover);
-  --color-primary-border: var(--primary-color-border);
-  --color-page-bg: var(--bg-color);
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-border: var(--color-primary-border);
+  --color-sidebar: var(--color-sidebar-bg);
+  --color-accent: var(--color-accent);
+  --color-page-bg: var(--color-page-bg);
 }
 
 :root {
-  --primary-color: #1F4D3D;
-  --primary-color-light: #F0F5F3; /* Very soft forest green tint */
-  --primary-color-hover: #16372b;
-  --primary-color-border: #1F4D3D15;
-  --bg-color: #FAF6F0;
-}
-
-[data-theme="deep_blue"] {
-  --primary-color: #1E3A5F;
-  --primary-color-light: #F0F4F8; /* Very soft navy blue tint */
-  --primary-color-hover: #152943;
-  --primary-color-border: #1E3A5F15;
+  --color-primary: #1F4D3D;
+  --color-primary-light: #E8F5EC;
+  --color-primary-hover: #16372b;
+  --color-primary-border: #1F4D3D15;
+  --color-sidebar-bg: #09261e;
+  --color-accent: #10b981;
+  --color-page-bg: #f8fafc;
 }
 
 /* ================= Google Translate Customization ================= */
