@@ -57,8 +57,12 @@ function Login() {
             if (data) {
                 setLoading(false);
                 loginUser(data.accessToken, data.refreshToken, data.user);
-                // Redirect user to select-business
-                navigate("/select-business");
+                // Redirect user based on businessType presence
+                if (data.user?.businessType) {
+                    navigate("/dashboard");
+                } else {
+                    navigate("/select-business");
+                }
             }
         })
         .catch((err) => {

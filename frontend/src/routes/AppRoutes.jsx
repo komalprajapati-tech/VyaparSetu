@@ -54,29 +54,27 @@ function ProtectedRoute({ children, requireBusinessSelection = true }) {
 }
 
 function AppRoutes() {
-    const { token } = useApp();
+    const { token, user, businessType } = useApp();
 
     const isTokenValid = token && !isTokenExpired(token);
+    const effectiveBusinessType = businessType || user?.businessType;
+    const defaultAuthRedirect = effectiveBusinessType ? "/dashboard" : "/select-business";
 
     return (
         <BrowserRouter>
             <Routes>
                 {/* Public / Auth paths */}
-                <Route path="/" element={isTokenValid ? <Navigate to="/select-business" replace /> : <Register />} />
-                <Route path="/register" element={isTokenValid ? <Navigate to="/select-business" replace /> : <Register />} />
-                <Route path="/login" element={isTokenValid ? <Navigate to="/select-business" replace /> : <Login />} />
+                <Route path="/" element={isTokenValid ? <Navigate to={defaultAuthRedirect} replace /> : <SelectBusiness />} />
+                <Route path="/register" element={isTokenValid ? <Navigate to={defaultAuthRedirect} replace /> : <Register />} />
+                <Route path="/login" element={isTokenValid ? <Navigate to={defaultAuthRedirect} replace /> : <Login />} />
                 <Route path="/otp" element={<OtpVerification />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 
-                {/* Business selection - Protected but doesn't require selection yet */}
+                {/* Business selection */}
                 <Route 
                     path="/select-business" 
-                    element={
-                        <ProtectedRoute requireBusinessSelection={false}>
-                            <SelectBusiness />
-                        </ProtectedRoute>
-                    } 
+                    element={<SelectBusiness />} 
                 />
 
                 {/* Core App Modules - Protected & requires selection */}

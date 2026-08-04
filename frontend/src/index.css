@@ -62,3 +62,24 @@ body {
   border: none !important;
   box-shadow: none !important;
 }
+
+/* Animations for Select Business Page */
+@keyframes smoothFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-welcome-entrance {
+  animation: smoothFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-card-entrance {
+  opacity: 0;
+  animation: smoothFadeUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

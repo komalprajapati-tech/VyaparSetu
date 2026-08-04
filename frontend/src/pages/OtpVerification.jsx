@@ -92,7 +92,8 @@ function OtpVerification() {
             // Log user in automatically
             loginUser(data.accessToken, data.refreshToken, data.user);
             
-            navigate("/select-business", { replace: true });
+            // Redirect newly registered user straight to dashboard
+            navigate("/dashboard", { replace: true });
         })
         .catch((err) => {
             setLoading(false);
@@ -136,7 +137,7 @@ function OtpVerification() {
             </div>
 
             {/* Main Form Card */}
-            <div className="w-full max-w-[440px] bg-white rounded-3xl shadow-lg shadow-slate-200/40 p-8 sm:p-10 border border-slate-200/90">
+            <div className="w-full max-w-[440px] bg-white rounded-3xl shadow-lg shadow-slate-200/40 p-6 sm:p-8 border border-slate-200/90">
                 
                 {/* Back Link */}
                 <button
@@ -171,7 +172,7 @@ function OtpVerification() {
 
                 {/* OTP Inputs Form */}
                 <form onSubmit={handleVerify} className="space-y-6">
-                    <div className="flex justify-between gap-2" onPaste={handlePaste}>
+                    <div className="grid grid-cols-6 gap-1.5 sm:gap-2 text-center" onPaste={handlePaste}>
                         {otp.map((digit, idx) => (
                             <input
                                 key={idx}
@@ -181,7 +182,7 @@ function OtpVerification() {
                                 value={digit}
                                 onChange={(e) => handleChange(e.target.value, idx)}
                                 onKeyDown={(e) => handleKeyDown(e, idx)}
-                                className="w-12 h-13 text-center text-xl font-bold border border-slate-200/60 rounded-2xl bg-[#f1f5f9]/70 text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all"
+                                className="w-full aspect-square text-center text-xl font-bold border-2 border-slate-300 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-900 shadow-xs outline-none focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/20 transition-all"
                             />
                         ))}
                     </div>

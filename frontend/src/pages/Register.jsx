@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Building2, User, Lock, Eye, EyeOff, Loader2, ShieldCheck, Wallet } from "lucide-react";
 import API_BASE_URL from "../config";
 
 function Register() {
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const [businessType, setBusinessType] = useState(location.state?.businessType || "retailer");
     const [businessName, setBusinessName] = useState("");
     const [ownerFullName, setOwnerFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -42,6 +44,7 @@ function Register() {
                 email,
                 password,
                 confirmPassword,
+                businessType,
             }),
         })
             .then(async (res) => {

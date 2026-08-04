@@ -5,7 +5,7 @@ import { useApp } from "../context/AppContext";
 
 function SelectBusiness() {
     const navigate = useNavigate();
-    const { updateProfile, t, logoutUser } = useApp();
+    const { token, updateProfile, t, logoutUser } = useApp();
     const [loadingType, setLoadingType] = useState("");
     const [error, setError] = useState("");
 
@@ -15,25 +15,32 @@ function SelectBusiness() {
             title: t.retailer,
             desc: "For general stores, boutiques, supermarkets, mobile shops, pharmacies, etc.",
             icon: ShoppingBag,
-            delay: "100ms"
+            delay: "120ms"
         },
         {
             id: "food",
             title: t.foodBusiness,
             desc: "For restaurants, cafes, food trucks, catering, dhabas, bakery shops, etc.",
             icon: Utensils,
-            delay: "200ms"
+            delay: "260ms"
         },
         {
             id: "service",
             title: t.serviceProvider,
             desc: "For consultants, agencies, salons, tutors, repair shops, developers, etc.",
             icon: Briefcase,
-            delay: "300ms"
+            delay: "400ms"
         }
     ];
 
     const handleSelect = async (typeId) => {
+        if (!token) {
+            // User is creating a new account -> Navigate to register with selected category
+            navigate("/register", { state: { businessType: typeId } });
+            return;
+        }
+
+        // User is logged in (e.g. updating profile or first-time login without category)
         setLoadingType(typeId);
         setError("");
         const success = await updateProfile({ businessType: typeId });
@@ -50,30 +57,28 @@ function SelectBusiness() {
     };
 
     return (
-        <div 
-            className="min-h-screen flex items-center justify-center px-4 py-12 font-sans relative overflow-hidden"
-            style={{
-                background: "linear-gradient(135deg, #F7F1EA 0%, #E1D4C2 100%)",
-            }}
-        >
-            {/* Subtle background ambient blur circles */}
-            <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#E1D4C2] opacity-40 filter blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#BEB5A9] opacity-30 filter blur-3xl pointer-events-none" />
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 font-sans relative overflow-hidden bg-[#f8fafc]">
+            {/* Subtle background ambient blur circles matching dashboard palette */}
+            <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-100/50 opacity-60 filter blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-teal-100/40 opacity-50 filter blur-3xl pointer-events-none" />
 
-            <div className="w-full max-w-5xl z-10 animate-fade-in">
+            <div className="w-full max-w-5xl z-10">
                 
-                {/* Header */}
-                <div className="text-center mb-12 space-y-3">
-                    {/* Brand Mark / Logo Icon */}
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#E1D4C2]/60 border border-[#BEB5A9]/50 shadow-sm text-[#291C0E] mb-2">
-                        <BookOpen size={26} strokeWidth={2.2} />
+                {/* Header with Welcome Entrance Animation */}
+                <div className="text-center mb-12 animate-welcome-entrance flex flex-col items-center">
+                    {/* Brand Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-xs mb-5">
+                        <div className="w-6 h-6 rounded-lg bg-[#1F4D3D] flex items-center justify-center text-white">
+                            <BookOpen size={14} className="stroke-[2.5]" />
+                        </div>
+                        <span className="text-xs font-semibold text-[#1F4D3D] tracking-wide">
+                            Welcome to Vyapar<span className="text-[#10b981]">Setu</span>
+                        </span>
                     </div>
 
-                    <h1 
-                        className="text-3xl sm:text-4xl font-serif font-bold tracking-tight text-[#291C0E]"
-                        style={{ fontFamily: "Georgia, Cambria, 'Times New Roman', Times, serif" }}
-                    >
-                        {t.selectBusinessType}
+                    {/* Main Hero Heading */}
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                        Select Your <span className="bg-gradient-to-r from-[#1F4D3D] to-emerald-600 bg-clip-text text-transparent">Business Type</span>
                     </h1>
                     
                     {error && (
@@ -82,12 +87,12 @@ function SelectBusiness() {
                         </div>
                     )}
                     
-                    <p className="text-[#6E473B] text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal opacity-90">
-                        {t.selectBusinessDesc}
+                    <p className="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed font-normal mt-3">
+                        Choose the category that best describes your store to customize your ledger & entries.
                     </p>
                 </div>
 
-                {/* Cards Grid */}
+                {/* Cards Grid with Staggered Entrance Animations */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {businessOptions.map((option) => {
                         const Icon = option.icon;
@@ -99,34 +104,30 @@ function SelectBusiness() {
                                 onClick={() => handleSelect(option.id)}
                                 style={{
                                     animationDelay: option.delay,
-                                    boxShadow: "0 10px 25px -5px rgba(41, 28, 14, 0.08), 0 8px 10px -6px rgba(41, 28, 14, 0.04)"
                                 }}
-                                className="bg-[#FAF7F2] border border-[#E1D4C2] rounded-2xl p-8 text-left hover:border-[#6E473B] transition-all duration-300 group flex flex-col justify-between h-80 cursor-pointer disabled:opacity-75 disabled:pointer-events-none relative overflow-hidden transform hover:-translate-y-1.5"
+                                className="animate-card-entrance bg-white border border-slate-200/90 rounded-2xl p-8 text-left hover:border-emerald-500 transition-all duration-300 group flex flex-col justify-between h-80 cursor-pointer disabled:opacity-75 disabled:pointer-events-none relative overflow-hidden transform hover:-translate-y-1.5 shadow-sm hover:shadow-md"
                             >
-                                {/* Decorative Accent Line at top of card */}
-                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#6E473B] opacity-80 group-hover:opacity-100 transition-opacity" />
+                                {/* Decorative Accent Line at top of card (Dashboard Green) */}
+                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#1F4D3D] opacity-90 group-hover:opacity-100 group-hover:bg-emerald-500 transition-all duration-300" />
 
                                 <div>
-                                    {/* Icon Container */}
-                                    <div className="w-14 h-14 rounded-full bg-[#BEB5A9]/30 border border-[#BEB5A9]/40 flex items-center justify-center text-[#291C0E] mb-6 group-hover:bg-[#6E473B] group-hover:text-white transition-all duration-300 shadow-sm">
+                                    {/* Icon Container - Matching Dashboard Summary Card style */}
+                                    <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[#1F4D3D] mb-6 group-hover:bg-[#1F4D3D] group-hover:text-white group-hover:border-[#1F4D3D] transition-all duration-300 shadow-xs">
                                         <Icon size={26} strokeWidth={2} />
                                     </div>
                                     
-                                    <h3 
-                                        className="text-xl font-bold text-[#291C0E] group-hover:text-[#6E473B] transition-colors"
-                                        style={{ fontFamily: "Georgia, Cambria, 'Times New Roman', Times, serif" }}
-                                    >
+                                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#1F4D3D] transition-colors">
                                         {option.title}
                                     </h3>
                                     
-                                    <p className="text-[#6E473B]/80 text-xs sm:text-sm mt-3 leading-relaxed">
+                                    <p className="text-slate-500 text-xs sm:text-sm mt-3 leading-relaxed">
                                         {option.desc}
                                     </p>
                                 </div>
 
-                                {/* Call to action pill button */}
+                                {/* Call to action pill button (Dashboard Green style) */}
                                 <div className="mt-8">
-                                    <div className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-semibold bg-[#6E473B] text-white group-hover:bg-[#291C0E] shadow-sm transition-all duration-200">
+                                    <div className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-semibold bg-[#1F4D3D] text-white group-hover:bg-[#16372b] shadow-sm transition-all duration-200">
                                         {isThisLoading ? (
                                             <>
                                                 <Loader2 size={15} className="animate-spin" />
@@ -143,20 +144,6 @@ function SelectBusiness() {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Footer Link */}
-                <div className="text-center mt-12">
-                    <button
-                        onClick={() => {
-                            logoutUser();
-                            navigate("/login");
-                        }}
-                        className="inline-flex items-center gap-2 text-xs font-medium text-[#6E473B]/80 hover:text-red-700 cursor-pointer transition-colors duration-150 py-2 px-4 rounded-full hover:bg-black/5"
-                    >
-                        <LogOut size={14} />
-                        <span>Sign out / Switch Account</span>
-                    </button>
                 </div>
 
             </div>
