@@ -76,33 +76,69 @@ function Dashboard() {
         });
     };
 
-    const getCategoryIcon = (category) => {
+    const getCategoryBadge = (category) => {
         const cat = category.toLowerCase();
         if (cat.includes("sales") || cat.includes("income") || cat.includes("refund")) {
-            return <ArrowUpRight className="text-emerald-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-emerald-100/80 border border-emerald-200/60 flex items-center justify-center text-emerald-700 shadow-2xs">
+                    <ArrowUpRight size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("inventory") || cat.includes("purchase") || cat.includes("groceries") || cat.includes("raw")) {
-            return <ShoppingBag className="text-indigo-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-indigo-100/80 border border-indigo-200/60 flex items-center justify-center text-indigo-700 shadow-2xs">
+                    <ShoppingBag size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("food") || cat.includes("kitchen") || cat.includes("restaurant") || cat.includes("dine-in") || cat.includes("delivery")) {
-            return <Utensils className="text-amber-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-amber-100/80 border border-amber-200/60 flex items-center justify-center text-amber-700 shadow-2xs">
+                    <Utensils size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("salary") || cat.includes("salaries") || cat.includes("consulting") || cat.includes("subscription")) {
-            return <Briefcase className="text-blue-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-blue-100/80 border border-blue-200/60 flex items-center justify-center text-blue-700 shadow-2xs">
+                    <Briefcase size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("rent") || cat.includes("room")) {
-            return <Home className="text-purple-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-purple-100/80 border border-purple-200/60 flex items-center justify-center text-purple-700 shadow-2xs">
+                    <Home size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("electricity") || cat.includes("gas") || cat.includes("utility") || cat.includes("internet") || cat.includes("software")) {
-            return <Zap className="text-yellow-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-yellow-100/80 border border-yellow-200/60 flex items-center justify-center text-yellow-700 shadow-2xs">
+                    <Zap size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("transport") || cat.includes("travel") || cat.includes("delivery fees")) {
-            return <Truck className="text-teal-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-teal-100/80 border border-teal-200/60 flex items-center justify-center text-teal-700 shadow-2xs">
+                    <Truck size={16} strokeWidth={2} />
+                </div>
+            );
         }
         if (cat.includes("tax") || cat.includes("marketing")) {
-            return <Tag className="text-rose-600" size={16} strokeWidth={1.5} />;
+            return (
+                <div className="w-8 h-8 rounded-xl bg-rose-100/80 border border-rose-200/60 flex items-center justify-center text-rose-700 shadow-2xs">
+                    <Tag size={16} strokeWidth={2} />
+                </div>
+            );
         }
-        return <Activity className="text-slate-600" size={16} strokeWidth={1.5} />;
+        return (
+            <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-2xs">
+                <Activity size={16} strokeWidth={2} />
+            </div>
+        );
     };
 
     if (loading) {
@@ -199,34 +235,38 @@ function Dashboard() {
     });
 
     const getPeriodLabel = () => {
-        if (selectedDate) return selectedDate;
+        if (selectedDate) return selectedDate.toUpperCase();
         const filter = dateFilter?.toLowerCase() || "month";
-        if (filter === "today") return t.today || "Today";
-        if (filter === "week") return t.weekly || "Weekly";
-        if (filter === "month") return t.monthly || "Monthly";
-        if (filter === "year") return "Yearly";
-        return "";
+        if (filter === "today") return (t.today || "Today").toUpperCase();
+        if (filter === "week") return (t.weekly || "Weekly").toUpperCase();
+        if (filter === "month") return (t.monthly || "Monthly").toUpperCase();
+        if (filter === "year") return "YEARLY";
+        return "MONTHLY";
     };
+
+    const currentPeriodText = getPeriodLabel();
 
     return (
         <Layout>
-            <div className="space-y-6 font-sans">
+            <div className="space-y-7 font-sans pb-8">
 
                 {/* Welcome back header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                            Welcome back, {user?.ownerFullName ? user.ownerFullName.split(" ")[0].toLowerCase() : "kiran"}
-                        </h1>
-                        <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                            <span className="px-3 py-1 bg-slate-200/60 text-slate-600 rounded-lg text-xs font-semibold">{selectedDate || "Today"}</span>
-                            <span className="px-3 py-1 bg-slate-200/60 text-slate-600 rounded-lg text-xs font-semibold">FY 2024-25</span>
-                            <span className="px-3 py-1 bg-emerald-100/60 text-emerald-700 rounded-lg text-xs font-semibold">Main Branch</span>
+                    {/* Tinted Welcome Panel with One-time Shine Sweep */}
+                    <div className="bg-[#E8F5EC] border border-[#d1ebd9] rounded-2xl px-6 py-4 animate-shine-once shadow-xs">
+                        <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#1F4D3D]">
+                                FY {new Date().getFullYear()}
+                            </span>
                         </div>
+                        <h1 className="text-2xl sm:text-3xl font-serif-classic font-bold text-[#1F4D3D] tracking-tight leading-snug mt-0.5">
+                            Welcome back, <span className="italic capitalize">{user?.ownerFullName ? user.ownerFullName.split(" ")[0] : "Komal"}</span>
+                        </h1>
                     </div>
                     
-                    {/* Date Switcher */}
-                    <div className="flex bg-slate-200/50 p-1 rounded-xl w-fit">
+                    {/* Date Switcher Filter Pills */}
+                    <div className="flex bg-slate-200/60 p-1.5 rounded-2xl w-fit shadow-xs">
                         {["Today", "Weekly", "Monthly", "Year"].map((filter) => {
                             const filterVal = filter === "Weekly" ? "week" : filter === "Monthly" ? "month" : filter.toLowerCase();
                             const isActive = !selectedDate && dateFilter === filterVal;
@@ -237,7 +277,11 @@ function Dashboard() {
                                         setSelectedDate("");
                                         setDateFilter(filterVal);
                                     }}
-                                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                                        isActive 
+                                            ? "bg-[#1F4D3D] text-white shadow-pill-active" 
+                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                                    }`}
                                 >
                                     {filter}
                                 </button>
@@ -247,9 +291,9 @@ function Dashboard() {
                 </div>
 
                 {/* Quick Actions Card */}
-                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col gap-4">
+                <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xs font-bold tracking-wider text-slate-500 uppercase flex items-center gap-2">
+                        <h2 className="text-xs font-extrabold tracking-wider text-slate-500 uppercase flex items-center gap-2">
                             <span className="text-amber-500 text-sm">⚡</span>
                             QUICK ACTIONS
                         </h2>
@@ -259,16 +303,16 @@ function Dashboard() {
                         {/* Quick Income */}
                         <button 
                             onClick={() => navigate("/add-entry?type=income")}
-                            className="bg-[#00a86b] hover:bg-[#00965e] text-white flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-semibold shadow-md shadow-emerald-600/15 transition-all cursor-pointer w-full"
+                            className="bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl text-sm font-bold shadow-md shadow-emerald-700/20 active:scale-[0.98] transition-all cursor-pointer w-full"
                         >
-                            <span className="text-lg font-bold">+</span> + Quick Income
+                            <span className="text-lg font-bold">+</span> Quick Income
                         </button>
                         {/* Quick Expense */}
                         <button 
                             onClick={() => navigate("/add-entry?type=expense")}
-                            className="bg-white hover:bg-slate-50 text-slate-700 border-2 border-dashed border-slate-200 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-semibold transition-all cursor-pointer w-full"
+                            className="bg-white hover:bg-rose-50/60 active:bg-rose-600 active:text-white text-slate-700 border-2 border-dashed border-slate-300 active:border-rose-600 flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer w-full group"
                         >
-                            <span className="text-lg font-bold text-slate-500">-</span> + Quick Expense
+                            <span className="text-lg font-bold text-slate-400 group-hover:text-rose-600 group-active:text-white">-</span> Quick Expense
                         </button>
                     </div>
                 </div>
@@ -276,76 +320,88 @@ function Dashboard() {
                 {/* 4 Summary Metrics Cards Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {/* Period Income */}
-                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between relative overflow-hidden">
-                        <div className="w-full h-1 bg-emerald-500 absolute top-0 left-0" />
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                        <div className="w-full h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-600 absolute top-0 left-0" />
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">INCOME (MONTHLY)</span>
-                            <div className="w-8 h-8 rounded-full bg-emerald-100/70 text-emerald-600 flex items-center justify-center font-bold text-sm">
-                                $
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                INCOME ({currentPeriodText})
+                            </span>
+                            <div className="w-9 h-9 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shadow-2xs">
+                                ₹
                             </div>
                         </div>
-                        <div className="mt-3">
-                            <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        <div className="mt-4">
+                            <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight font-numeric">
                                 ₹{periodIncome.toLocaleString("en-IN")}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 uppercase">
+                            <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/60 text-emerald-700 uppercase tracking-wide">
                                 ↑ INCOME
                             </span>
                         </div>
                     </div>
  
                     {/* Period Expense */}
-                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between relative overflow-hidden">
-                        <div className="w-full h-1 bg-pink-500 absolute top-0 left-0" />
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                        <div className="w-full h-1.5 bg-gradient-to-r from-pink-400 to-rose-600 absolute top-0 left-0" />
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">EXPENSE (MONTHLY)</span>
-                            <div className="w-8 h-8 rounded-full bg-pink-100/70 text-pink-500 flex items-center justify-center font-bold text-sm">
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                EXPENSE ({currentPeriodText})
+                            </span>
+                            <div className="w-9 h-9 rounded-2xl bg-pink-50 border border-pink-100 text-pink-600 flex items-center justify-center font-bold text-sm shadow-2xs">
                                 ⊖
                             </div>
                         </div>
-                        <div className="mt-3">
-                            <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        <div className="mt-4">
+                            <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight font-numeric">
                                 ₹{periodExpense.toLocaleString("en-IN")}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 uppercase">
+                            <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-pink-50 border border-pink-200/60 text-pink-600 uppercase tracking-wide">
                                 ↓ EXPENSE
                             </span>
                         </div>
                     </div>
  
-                    {/* Period Net */}
-                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between relative overflow-hidden">
-                        <div className="w-full h-1 bg-sky-500 absolute top-0 left-0" />
+                    {/* Period Net Profit / Loss */}
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                        <div className={`w-full h-1.5 absolute top-0 left-0 ${periodNet >= 0 ? "bg-gradient-to-r from-sky-400 to-blue-600" : "bg-gradient-to-r from-rose-400 to-red-600"}`} />
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NET PROFIT (MONTHLY)</span>
-                            <div className="w-8 h-8 rounded-full bg-sky-100/70 text-sky-600 flex items-center justify-center">
-                                <TrendingUp size={16} />
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                {periodNet >= 0 ? `NET PROFIT (${currentPeriodText})` : `NET LOSS (${currentPeriodText})`}
+                            </span>
+                            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shadow-2xs ${periodNet >= 0 ? "bg-sky-50 border border-sky-100 text-sky-600" : "bg-rose-50 border border-rose-100 text-rose-600"}`}>
+                                {periodNet >= 0 ? <TrendingUp size={18} /> : <ArrowDownRight size={18} />}
                             </div>
                         </div>
-                        <div className="mt-3">
-                            <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        <div className="mt-4">
+                            <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight font-numeric">
                                 ₹{periodNet.toLocaleString("en-IN")}
                             </h3>
-                            <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-50 text-sky-600 uppercase">
-                                ✓ PROFIT
-                            </span>
+                            {periodNet >= 0 ? (
+                                <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200/60 text-sky-600 uppercase tracking-wide">
+                                    ✓ PROFIT
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1 mt-3 text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200/60 text-rose-600 uppercase tracking-wide">
+                                    ⚠ LOSS
+                                </span>
+                            )}
                         </div>
                     </div>
  
                     {/* Credit Book Udhaar */}
-                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between relative overflow-hidden">
-                        <div className="w-full h-1 bg-amber-400 absolute top-0 left-0" />
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                        <div className="w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-600 absolute top-0 left-0" />
                         <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL PENDING CREDIT</span>
-                            <div className="w-8 h-8 rounded-full bg-amber-100/70 text-amber-700 flex items-center justify-center">
-                                <BookOpen size={16} />
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">TOTAL PENDING CREDIT</span>
+                            <div className="w-9 h-9 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center shadow-2xs">
+                                <BookOpen size={17} />
                             </div>
                         </div>
-                        <div className="mt-3">
-                            <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        <div className="mt-4">
+                            <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight font-numeric">
                                 ₹{totalUdhaar.toLocaleString("en-IN")}
                             </h3>
-                            <span className="inline-block mt-3 bg-amber-100/70 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
+                            <span className="inline-block mt-3 bg-amber-50 border border-amber-200/70 text-amber-800 text-[10px] font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wide">
                                 OUTSTANDING
                             </span>
                         </div>
@@ -353,25 +409,24 @@ function Dashboard() {
                 </div>
 
                 {/* Charts Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-7">
                     
                     {/* Sales vs Expense Grouped Bar Chart */}
-                    <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs lg:col-span-2 relative min-h-[340px] flex flex-col justify-between">
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 lg:col-span-2 relative min-h-[350px] flex flex-col justify-between">
                         <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">SALES VS EXPENSE TREND</h4>
+                            <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">SALES VS EXPENSE TREND</h4>
                             <div className="flex gap-4 text-xs font-semibold">
-                                <span className="flex items-center gap-1.5 text-slate-600">
-                                    <span className="w-3 h-3 bg-[#00a86b] rounded-md" /> Income
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <span className="w-3 h-3 bg-emerald-500 rounded-md shadow-2xs" /> Income
                                 </span>
-                                <span className="flex items-center gap-1.5 text-slate-600">
-                                    <span className="w-3 h-3 bg-[#064e3b] rounded-md" /> Expense
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <span className="w-3 h-3 bg-[#1F4D3D] rounded-md shadow-2xs" /> Expense
                                 </span>
                             </div>
                         </div>
 
                         {trend.length === 0 || maxVal === 0 ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-center py-10 relative">
-                                {/* Dotted Grid lines simulation */}
                                 <div className="w-full space-y-8 absolute inset-0 py-6 px-4 flex flex-col justify-between opacity-30 pointer-events-none">
                                     <div className="border-b border-dashed border-slate-200 w-full" />
                                     <div className="border-b border-dashed border-slate-200 w-full" />
@@ -387,7 +442,19 @@ function Dashboard() {
                         ) : (
                             <div className="relative w-full">
                                 <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto overflow-visible">
-                                     {/* Horizontal Light Grid Lines & Y-Axis Labels */}
+                                     {/* SVG Gradient definitions */}
+                                     <defs>
+                                         <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
+                                             <stop offset="0%" stopColor="#10b981" />
+                                             <stop offset="100%" stopColor="#059669" />
+                                         </linearGradient>
+                                         <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
+                                             <stop offset="0%" stopColor="#1F4D3D" />
+                                             <stop offset="100%" stopColor="#0f2b22" />
+                                         </linearGradient>
+                                     </defs>
+
+                                     {/* Horizontal Barely Visible Grid Lines & Y-Axis Labels */}
                                      {[0.0, 0.25, 0.5, 0.75, 1.0].map((p, idx) => {
                                          const val = maxVal * p;
                                          const y = chartHeight - paddingBottom - (val * (chartHeight - paddingTop - paddingBottom) / maxVal);
@@ -403,7 +470,7 @@ function Dashboard() {
                                                      x={paddingLeft - 10} 
                                                      y={y + 3} 
                                                      textAnchor="end" 
-                                                     className="text-[9px] fill-slate-350 font-semibold"
+                                                     className="text-[9px] fill-slate-400 font-semibold"
                                                  >
                                                      {label}
                                                  </text>
@@ -413,8 +480,9 @@ function Dashboard() {
                                                          y1={y} 
                                                          x2={chartWidth - paddingRight} 
                                                          y2={y} 
-                                                         stroke="#f1f5f9" 
-                                                         strokeWidth={1} 
+                                                         stroke="#e2e8f0" 
+                                                         strokeWidth={0.75}
+                                                         strokeDasharray="3 3"
                                                      />
                                                  )}
                                              </g>
@@ -426,7 +494,7 @@ function Dashboard() {
                                          const xGroup = getX(i);
                                          const count = trend.length;
                                          const step = (chartWidth - paddingLeft - paddingRight) / count;
-                                         const barWidth = 14; // Pill rounded bar width
+                                         const barWidth = 14;
                                          const barGap = 4;
                                          const plotHeight = chartHeight - paddingTop - paddingBottom;
                                          const baseY = chartHeight - paddingBottom;
@@ -451,7 +519,7 @@ function Dashboard() {
                                                          height={incomeH}
                                                          rx={barWidth / 2}
                                                          ry={barWidth / 2}
-                                                         fill="#00c853"
+                                                         fill="url(#incomeGrad)"
                                                          className="transition-all duration-300 hover:opacity-90"
                                                      />
                                                  ) : (
@@ -475,7 +543,7 @@ function Dashboard() {
                                                          height={expenseH}
                                                          rx={barWidth / 2}
                                                          ry={barWidth / 2}
-                                                         fill="#064e3b"
+                                                         fill="url(#expenseGrad)"
                                                          className="transition-all duration-300 hover:opacity-90"
                                                      />
                                                  ) : (
@@ -523,7 +591,7 @@ function Dashboard() {
                                 {/* Tooltip Overlay */}
                                 {hoveredPoint && (
                                     <div 
-                                        className="absolute bg-slate-900/95 text-white text-[10px] p-2.5 rounded-xl shadow-xl pointer-events-none z-10 border border-white/10 backdrop-blur-xs transition-all duration-100"
+                                        className="absolute bg-slate-900/95 text-white text-[10px] p-3 rounded-2xl shadow-xl pointer-events-none z-10 border border-white/10 backdrop-blur-xs transition-all duration-100"
                                         style={{
                                             left: `${(hoveredPoint.x / chartWidth) * 100}%`,
                                             top: `${(hoveredPoint.y / chartHeight) * 100}%`,
@@ -531,12 +599,12 @@ function Dashboard() {
                                         }}
                                     >
                                         <p className="font-extrabold border-b border-white/15 pb-1 mb-1.5 text-center text-slate-300">{hoveredPoint.date}</p>
-                                        <div className="space-y-0.5">
-                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Income:</span> <span className="text-emerald-400 font-bold">₹{hoveredPoint.income.toLocaleString("en-IN")}</span></p>
-                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Expense:</span> <span className="text-emerald-200 font-bold">₹{hoveredPoint.expense.toLocaleString("en-IN")}</span></p>
+                                        <div className="space-y-1">
+                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Income:</span> <span className="text-emerald-400 font-bold font-numeric">₹{hoveredPoint.income.toLocaleString("en-IN")}</span></p>
+                                            <p className="flex justify-between gap-4"><span className="text-slate-400">Expense:</span> <span className="text-emerald-200 font-bold font-numeric">₹{hoveredPoint.expense.toLocaleString("en-IN")}</span></p>
                                             <p className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-1 font-bold">
-                                                <span>Profit:</span> 
-                                                <span className={hoveredPoint.profit >= 0 ? "text-emerald-400" : "text-rose-400"}>
+                                                <span>Net:</span> 
+                                                <span className={`font-numeric ${hoveredPoint.profit >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                                                     ₹{hoveredPoint.profit.toLocaleString("en-IN")}
                                                 </span>
                                             </p>
@@ -548,12 +616,11 @@ function Dashboard() {
                     </div>
 
                     {/* Expense Breakdown Pie/Donut Chart */}
-                    <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs flex flex-col justify-between min-h-[340px] relative">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">EXPENSE CATEGORY BREAKDOWN</h4>
+                    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-card-warm shadow-card-warm-hover transition-all duration-300 flex flex-col justify-between min-h-[350px] relative">
+                        <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-4">EXPENSE CATEGORY BREAKDOWN</h4>
 
                         {totalExpenses === 0 ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
-                                {/* Circular Dotted Line Placeholder */}
                                 <div className="w-36 h-36 rounded-full border-2 border-dashed border-slate-200/80 flex items-center justify-center mb-6">
                                     <PieChart size={32} className="text-slate-300 stroke-[1.25]" />
                                 </div>
@@ -563,18 +630,19 @@ function Dashboard() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center">
-                                {/* SVG Donut */}
-                                <div className="w-32 h-32 relative mb-6">
-                                    <svg viewBox="-60 -60 120 120" className="w-full h-full transform -rotate-90">
+                                {/* SVG Donut with inner depth shadow */}
+                                <div className="w-36 h-36 relative mb-6">
+                                    <svg viewBox="-60 -60 120 120" className="w-full h-full transform -rotate-90 filter drop-shadow-xs">
                                         {donutSlices.map((slice, index) => (
-                                            <path key={index} d={slice.path} fill={slice.color} />
+                                            <path key={index} d={slice.path} fill={slice.color} className="transition-all duration-300 hover:opacity-90" />
                                         ))}
-                                        {/* Center hole for Donut look */}
-                                        <circle cx={0} cy={0} r={36} fill="#fff" />
+                                        {/* Center hole for Donut look with subtle inner shadow ring */}
+                                        <circle cx={0} cy={0} r={35} fill="#fff" className="shadow-inner" />
+                                        <circle cx={0} cy={0} r={35} fill="none" stroke="#f1f5f9" strokeWidth={1} />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Total</span>
-                                        <span className="text-xs font-black text-slate-800 mt-0.5">₹{totalExpenses.toLocaleString("en-IN")}</span>
+                                        <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">Total</span>
+                                        <span className="text-xs font-extrabold text-slate-900 mt-0.5 font-numeric">₹{totalExpenses.toLocaleString("en-IN")}</span>
                                     </div>
                                 </div>
 
@@ -582,11 +650,11 @@ function Dashboard() {
                                 <div className="w-full space-y-2 max-h-32 overflow-y-auto pr-1">
                                     {donutSlices.map((slice, index) => (
                                         <div key={index} className="flex items-center justify-between text-[11px]">
-                                            <div className="flex items-center gap-2 text-slate-500 font-medium truncate">
-                                                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: slice.color }} />
+                                            <div className="flex items-center gap-2 text-slate-600 font-medium truncate">
+                                                <span className="w-2 h-2 rounded-full flex-shrink-0 shadow-2xs" style={{ backgroundColor: slice.color }} />
                                                 <span className="truncate">{slice.category}</span>
                                             </div>
-                                            <span className="font-bold text-slate-800">₹{slice.amount}</span>
+                                            <span className="font-bold text-slate-900 font-numeric">₹{slice.amount.toLocaleString("en-IN")}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -596,7 +664,7 @@ function Dashboard() {
                         {/* Floating Green Plus Button */}
                         <button
                             onClick={() => navigate("/add-entry")}
-                            className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-[#00a86b] hover:bg-[#00965e] text-white shadow-lg shadow-emerald-600/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                            className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white shadow-lg shadow-emerald-700/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
                         >
                             <Plus size={26} strokeWidth={2.5} />
                         </button>
@@ -604,8 +672,8 @@ function Dashboard() {
                 </div>
 
                 {/* Recent Activity List */}
-                <div className="bg-white border border-slate-200/50 rounded-2xl shadow-xs p-6">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{t.recentActivity || "Recent Activity"}</h4>
+                <div className="bg-white border border-slate-200/90 rounded-3xl shadow-card-warm shadow-card-warm-hover transition-all duration-300 p-6">
+                    <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-4">{t.recentActivity || "Recent Activity"}</h4>
 
                     {summary?.recent_activity?.length === 0 ? (
                         <div className="py-8 text-center text-xs text-slate-400 font-medium">
@@ -616,19 +684,17 @@ function Dashboard() {
                             {summary?.recent_activity?.map((entry) => (
                                 <div 
                                     key={entry.id} 
-                                    className="py-3 flex items-center justify-between hover:bg-slate-50/50 px-2 rounded-xl transition-all duration-200"
+                                    className="py-3.5 flex items-center justify-between hover:bg-slate-50/70 px-3 rounded-2xl transition-all duration-200"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
-                                            {getCategoryIcon(entry.category)}
-                                        </div>
+                                    <div className="flex items-center gap-3.5">
+                                        {getCategoryBadge(entry.category)}
                                         <div>
-                                            <p className="text-xs font-bold text-slate-850">{entry.category}</p>
-                                            {entry.note && <p className="text-[10px] text-slate-400 mt-0.5">{entry.note}</p>}
+                                            <p className="text-xs font-extrabold text-slate-900">{entry.category}</p>
+                                            {entry.note && <p className="text-[10px] text-slate-400 mt-0.5 font-normal">{entry.note}</p>}
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className={`text-xs font-extrabold ${entry.type === "income" ? "text-emerald-700" : "text-rose-600"}`}>
+                                        <span className={`text-xs font-extrabold font-numeric ${entry.type === "income" ? "text-emerald-700" : "text-rose-700"}`}>
                                             {entry.type === "income" ? "+" : "-"} ₹{entry.amount.toLocaleString("en-IN")}
                                         </span>
                                         <p className="text-[9px] text-slate-400 mt-0.5 font-semibold">{entry.date}</p>

@@ -256,67 +256,21 @@ function Layout({ children }) {
                         </div>
 
                         {/* Notification Bell */}
-                        <div className="relative">
-                            <button 
-                                onClick={() => {
-                                    setNotifOpen(!notifOpen);
-                                    setLangOpen(false);
-                                    fetchNotifications();
-                                }}
-                                className="text-slate-600 p-2.5 bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50 transition relative shadow-xs cursor-pointer flex items-center justify-center"
-                            >
-                                <Bell size={16} strokeWidth={2} />
-                                {notifications.filter(n => !n.isRead).length > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-[8px] font-bold text-white flex items-center justify-center shadow-xs">
-                                        {notifications.filter(n => !n.isRead).length}
-                                    </span>
-                                )}
-                            </button>
-                            
-                            {notifOpen && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-4 font-sans text-slate-800">
-                                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2.5">
-                                        <h3 className="text-xs font-bold text-slate-850 uppercase tracking-wider">Alerts & Notifications</h3>
-                                        <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-full">
-                                            {notifications.filter(n => !n.isRead).length} New
-                                        </span>
-                                    </div>
-                                    {notifications.length === 0 ? (
-                                        <p className="text-center text-xs text-slate-400 py-6 font-medium">No alerts at the moment.</p>
-                                    ) : (
-                                        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                                            {notifications.map(n => (
-                                                <div 
-                                                    key={n.id} 
-                                                    onClick={() => handleMarkRead(n.id)}
-                                                    className={`p-3 rounded-xl border transition-all relative flex flex-col justify-between hover:bg-slate-50/40 cursor-pointer ${n.isRead ? 'bg-white border-slate-100 text-slate-500' : 'bg-emerald-50/20 border-emerald-100/50 text-slate-850'}`}
-                                                >
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <div className="flex items-start gap-1.5">
-                                                            {!n.isRead && <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 flex-shrink-0 mt-1.5" />}
-                                                            <div>
-                                                                <h4 className="text-xs font-bold leading-tight">{n.title}</h4>
-                                                                <p className="text-[9px] mt-1 text-slate-500 leading-normal">{n.message}</p>
-                                                                <span className="text-[7px] text-slate-400 mt-1.5 block font-semibold">{n.createdAt}</span>
-                                                            </div>
-                                                        </div>
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDismiss(n.id);
-                                                            }}
-                                                            className="text-slate-400 hover:text-slate-600 p-0.5 hover:bg-slate-100 rounded-md transition"
-                                                        >
-                                                            <X size={11} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                        <button 
+                            onClick={() => {
+                                setNotifOpen(true);
+                                setLangOpen(false);
+                                fetchNotifications();
+                            }}
+                            className="text-slate-600 p-2.5 bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50 transition relative shadow-xs cursor-pointer flex items-center justify-center"
+                        >
+                            <Bell size={16} strokeWidth={2} />
+                            {notifications.filter(n => !n.isRead).length > 0 && (
+                                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-[8px] font-bold text-white flex items-center justify-center shadow-xs">
+                                    {notifications.filter(n => !n.isRead).length}
+                                </span>
                             )}
-                        </div>
+                        </button>
 
                         {/* Calendar */}
                         <div className="relative">
@@ -336,26 +290,121 @@ function Layout({ children }) {
                             />
                         </div>
  
-                        {/* Owner Profile Container */}
-                        <div className="flex items-center gap-2.5 pl-3">
+                        {/* Owner Profile Container with Active Gradient Ring */}
+                        <button 
+                            onClick={() => navigate("/settings")}
+                            className="flex items-center gap-3 pl-2 cursor-pointer hover:opacity-90 transition active:scale-95 text-left"
+                            title="Go to Settings"
+                        >
                             <div className="text-right hidden md:block">
                                 <h1 className="text-xs font-extrabold text-slate-900 leading-tight">
-                                    {user?.ownerFullName || "kiran thakor"}
+                                    {user?.ownerFullName || "Komal Prajapati"}
                                 </h1>
-                                <span className="text-[9px] uppercase font-bold tracking-wider text-emerald-600 block">
-                                    RETAILER
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-emerald-700 block">
+                                    {user?.businessType ? user.businessType.toUpperCase() : "RETAILER"}
                                 </span>
                             </div>
-                            <div className="w-9 h-9 rounded-full bg-[#00a86b] text-white flex items-center justify-center shadow-sm text-sm font-bold font-sans overflow-hidden">
-                                {user?.profilePic ? (
-                                    <img src={user.profilePic} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    user?.ownerFullName ? user.ownerFullName.charAt(0).toUpperCase() : "K"
+                            <div className="p-[2.5px] rounded-full bg-gradient-to-tr from-[#1F4D3D] via-emerald-500 to-teal-300 shadow-xs">
+                                <div className="w-9 h-9 rounded-full bg-[#1F4D3D] border-2 border-white text-white flex items-center justify-center text-sm font-bold font-sans overflow-hidden">
+                                    {user?.profilePic ? (
+                                        <img src={user.profilePic} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        user?.ownerFullName ? user.ownerFullName.charAt(0).toUpperCase() : "K"
+                                    )}
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </header>
+
+                {/* Slide-over Notification Panel Drawer (Right Side) */}
+                {notifOpen && (
+                    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+                        {/* Semi-transparent dark overlay */}
+                        <div 
+                            onClick={() => setNotifOpen(false)}
+                            className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity duration-300"
+                        />
+
+                        <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+                            <div className="w-screen max-w-sm bg-white shadow-2xl border-l border-slate-200 transform transition-transform duration-300 ease-out flex flex-col justify-between">
+                                {/* Drawer Header */}
+                                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center font-bold">
+                                            <Bell size={16} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Notifications</h3>
+                                            <p className="text-[10px] text-slate-400 font-medium">Updates & activity alerts</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => setNotifOpen(false)}
+                                        className="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+
+                                {/* Notifications List */}
+                                <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                                    {notifications.length === 0 ? (
+                                        <div className="h-64 flex flex-col items-center justify-center text-center">
+                                            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                                                <Bell size={20} />
+                                            </div>
+                                            <p className="text-xs font-semibold text-slate-500">No alerts at the moment.</p>
+                                            <p className="text-[10px] text-slate-400 mt-1">You're all caught up!</p>
+                                        </div>
+                                    ) : (
+                                        notifications.map(n => (
+                                            <div 
+                                                key={n.id} 
+                                                onClick={() => handleMarkRead(n.id)}
+                                                className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between hover:shadow-xs cursor-pointer ${n.isRead ? 'bg-[#ffffff] border-slate-100 text-slate-500' : 'bg-emerald-50/40 border-emerald-200/60 text-slate-900'}`}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex items-start gap-2">
+                                                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0 mt-1.5" />}
+                                                        <div>
+                                                            <h4 className="text-xs font-extrabold leading-tight">{n.title}</h4>
+                                                            <p className="text-[11px] mt-1 text-slate-600 leading-normal">{n.message}</p>
+                                                            <span className="text-[9px] text-slate-400 mt-2 block font-semibold">{n.createdAt}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDismiss(n.id);
+                                                        }}
+                                                        className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition"
+                                                    >
+                                                        <X size={13} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                {/* Drawer Footer */}
+                                {notifications.length > 0 && (
+                                    <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                                        <button 
+                                            onClick={() => {
+                                                notifications.forEach(n => handleMarkRead(n.id));
+                                            }}
+                                            className="w-full py-2.5 rounded-xl bg-slate-200/70 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition cursor-pointer"
+                                        >
+                                            Mark All as Read
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
                     </div>
-                </header>
+                )}
 
                 {/* Sub-page Workspace */}
                 <main className="flex-1 p-6 pt-2 relative">
