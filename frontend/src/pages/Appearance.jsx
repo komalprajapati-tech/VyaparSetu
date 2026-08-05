@@ -41,10 +41,13 @@ function Appearance() {
         }
     ];
 
-    const isChanged = selectedTheme !== theme;
+    const isChanged = selectedTheme !== theme || selectedTheme === "custom";
+
+    const handleSelectPreset = (presetId) => {
+        setSelectedTheme(presetId);
+    };
 
     const handleSaveTheme = async () => {
-        if (!isChanged && selectedTheme !== "custom") return;
         setLoading(true);
         setToastMessage("");
 
@@ -61,7 +64,10 @@ function Appearance() {
         const success = await updateProfile({ themeColor: selectedTheme });
         setLoading(false);
         if (success) {
-            setToastMessage("Theme updated!");
+            setToastMessage("Theme applied & saved successfully!");
+            setTimeout(() => setToastMessage(""), 3000);
+        } else {
+            setToastMessage("Theme applied!");
             setTimeout(() => setToastMessage(""), 3000);
         }
     };
@@ -79,7 +85,6 @@ function Appearance() {
             updated.bg = value;
         }
         setSelectedTheme("custom");
-        setCustomThemeColors(updated);
     };
 
     return (
@@ -122,7 +127,7 @@ function Appearance() {
                             return (
                                 <button
                                     key={t.id}
-                                    onClick={() => setSelectedTheme(t.id)}
+                                    onClick={() => handleSelectPreset(t.id)}
                                     className={`p-5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between h-40 cursor-pointer relative overflow-hidden group ${
                                         isSelected 
                                             ? "border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-500/20 shadow-md" 
@@ -154,12 +159,9 @@ function Appearance() {
                     <div className="pt-2 flex justify-end">
                         <button
                             onClick={handleSaveTheme}
-                            disabled={!isChanged || loading}
-                            className={`px-6 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-sm ${
-                                isChanged && !loading
-                                    ? "bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white cursor-pointer active:scale-95 shadow-emerald-700/20"
-                                    : "bg-slate-100 text-slate-400 border border-slate-200/80 cursor-not-allowed"
-                            }`}
+                            disabled={loading}
+                            style={{ backgroundColor: "var(--color-accent)" }}
+                            className="px-6 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-sm text-white cursor-pointer active:scale-95 disabled:opacity-50"
                         >
                             {loading ? (
                                 <>

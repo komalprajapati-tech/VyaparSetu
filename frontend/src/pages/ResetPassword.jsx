@@ -193,8 +193,8 @@ function ResetPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full h-11 rounded bg-${colors.primary} text-white font-semibold text-sm transition flex items-center justify-center gap-2 mt-4`}
-                            style={{ backgroundColor: colors.theme === 'deep_blue' ? '#2563eb' : '#059669' }}
+                            style={{ backgroundColor: "var(--color-primary)" }}
+                            className="w-full h-11 rounded text-white font-semibold text-sm transition flex items-center justify-center gap-2 mt-4 cursor-pointer hover:opacity-90 active:scale-98"
                         >
                             {loading ? (
                                 <>

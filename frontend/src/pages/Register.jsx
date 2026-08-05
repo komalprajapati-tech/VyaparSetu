@@ -205,7 +205,8 @@ function Register() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-12 rounded-2xl bg-[#00a86b] hover:bg-[#00965e] active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4"
+                        style={{ backgroundColor: "var(--color-primary)" }}
+                        className="w-full h-12 rounded-2xl active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2 mt-4 cursor-pointer hover:opacity-90"
                     >
                         {loading ? (
                             <>

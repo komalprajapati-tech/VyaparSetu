@@ -55,7 +55,10 @@ function PersonalPlanning() {
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-emerald-100/80 border border-emerald-200 text-[#1F4D3D] flex items-center justify-center shadow-xs">
+                        <div 
+                            style={{ backgroundColor: "var(--color-primary-light)", borderColor: "var(--color-primary-border)", color: "var(--color-primary)" }}
+                            className="w-10 h-10 rounded-2xl border flex items-center justify-center shadow-xs"
+                        >
                             <Target size={20} className="stroke-[2.2]" />
                         </div>
                         <div>
@@ -64,7 +67,10 @@ function PersonalPlanning() {
                         </div>
                     </div>
                     
-                    <div className="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-full text-emerald-800 text-xs font-extrabold">
+                    <div 
+                        style={{ backgroundColor: "var(--color-primary-light)", borderColor: "var(--color-primary-border)", color: "var(--color-primary)" }}
+                        className="hidden sm:flex items-center gap-2 border px-3.5 py-1.5 rounded-full text-xs font-extrabold"
+                    >
                         <Sparkles size={14} />
                         <span>{completedCount} / {goals.length} Completed</span>
                     </div>
@@ -81,7 +87,7 @@ function PersonalPlanning() {
                                 value={newGoalText}
                                 onChange={(e) => setNewGoalText(e.target.value)}
                                 placeholder="E.g., Increase weekly repeat customer orders by 15%..."
-                                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-xs text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition"
+                                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-xs text-slate-800 outline-none focus:bg-white focus:border-[var(--color-accent)] transition"
                             />
                         </div>
 
@@ -91,7 +97,7 @@ function PersonalPlanning() {
                                 <select
                                     value={newCategory}
                                     onChange={(e) => setNewCategory(e.target.value)}
-                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-emerald-500 transition"
+                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-[var(--color-accent)] transition"
                                 >
                                     <option value="Business">Business Growth</option>
                                     <option value="Finance">Finance & Udhaar</option>
@@ -106,14 +112,15 @@ function PersonalPlanning() {
                                     type="date"
                                     value={newDate}
                                     onChange={(e) => setNewDate(e.target.value)}
-                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-emerald-500 transition"
+                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-[var(--color-accent)] transition"
                                 />
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full h-11 bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white rounded-xl text-xs font-extrabold shadow-sm flex items-center justify-center gap-2 cursor-pointer transition"
+                            style={{ backgroundColor: "var(--color-accent)" }}
+                            className="w-full h-11 text-white rounded-xl text-xs font-extrabold shadow-sm flex items-center justify-center gap-2 cursor-pointer transition hover:opacity-90 active:scale-98"
                         >
                             <Plus size={16} strokeWidth={2.5} />
                             Add Milestone Goal

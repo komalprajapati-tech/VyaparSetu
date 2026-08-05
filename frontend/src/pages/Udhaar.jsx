@@ -176,8 +176,8 @@ function Udhaar() {
                         <button
                             type="submit"
                             disabled={actionLoading}
-                            className={`w-full h-10 rounded bg-${colors.primary} text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 pt-0.5`}
-                            style={{ backgroundColor: colors.theme === 'deep_blue' ? '#2563eb' : '#059669' }}
+                            style={{ backgroundColor: "var(--color-primary)" }}
+                            className="w-full h-10 rounded text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 pt-0.5 cursor-pointer hover:opacity-90 active:scale-98"
                         >
                             {actionLoading ? (
                                 <Loader2 size={14} className="animate-spin" />

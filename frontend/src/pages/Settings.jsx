@@ -183,7 +183,7 @@ function Settings() {
                                     type="checkbox"
                                     checked={eodReminderEnabled}
                                     onChange={(e) => setEodReminderEnabled(e.target.checked)}
-                                    className="w-4 h-4 text-[#0cb281] border-slate-300 rounded focus:ring-[#0cb281]"
+                                    className="w-4 h-4 text-theme-accent border-slate-300 rounded focus:ring-theme-accent"
                                 />
                                 <span className="text-xs font-bold text-slate-700">Enable End-of-Day Reminder</span>
                             </label>
@@ -209,7 +209,8 @@ function Settings() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="h-11 px-5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold text-xs transition flex items-center gap-1.5 pt-0.5 shadow-xs"
+                            style={{ backgroundColor: "var(--color-primary)" }}
+                            className="h-11 px-5 rounded-full text-white font-bold text-xs transition flex items-center gap-1.5 pt-0.5 shadow-xs cursor-pointer hover:opacity-90 active:scale-98"
                         >
                             {loading ? (
                                 <Loader2 size={14} className="animate-spin" />
@@ -223,143 +224,38 @@ function Settings() {
                     </form>
                 </div>
  
-                {/* Preference Preferences Card (Theme & Lang) */}
-                <div className="bg-white border border-[#BEB5A9]/20 rounded-2xl p-6 sm:p-8 space-y-8 shadow-[0_4px_16px_rgba(41,28,14,0.02)]">
-                    
-                    {/* Theme Picker */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-                            <Palette size={18} className="text-primary" />
-                            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">{t.themeColor}</h3>
-                        </div>
- 
-                        <div className="flex flex-wrap gap-3 mb-5">
-                            {/* Forest Green */}
-                            <button
-                                type="button"
-                                onClick={() => handleColorThemeChange("forest_green")}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${theme === "forest_green" ? "border-primary bg-primary-light text-primary" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                <span className="w-3.5 h-3.5 rounded-full bg-[#1F4D3D] block" />
-                                Forest Green
-                            </button>
-                            
-                            {/* Deep Blue */}
-                            <button
-                                type="button"
-                                onClick={() => handleColorThemeChange("deep_blue")}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${theme === "deep_blue" ? "border-primary bg-primary-light text-primary" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                <span className="w-3.5 h-3.5 rounded-full bg-[#1E3A5F] block" />
-                                Deep Blue
-                            </button>
-
-                            {/* Coffee Shop */}
-                            <button
-                                type="button"
-                                onClick={() => handleColorThemeChange("coffee_shop")}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${theme === "coffee_shop" ? "border-primary bg-primary-light text-primary" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                <span className="w-3.5 h-3.5 rounded-full bg-[#6E473B] block" />
-                                Coffee Shop
-                            </button>
-
-                            {/* Custom Palette */}
-                            <button
-                                type="button"
-                                onClick={() => handleColorThemeChange("custom")}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${theme === "custom" ? "border-primary bg-primary-light text-primary" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                <span className="w-3.5 h-3.5 rounded-full bg-linear-to-r from-red-400 via-emerald-400 to-blue-400 block" />
-                                Custom Palette
-                            </button>
-                        </div>
-
-                        {/* Custom Palette Inputs */}
-                        {theme === "custom" && (
-                            <div className="bg-[#FAF6F0] p-4 rounded-2xl border border-[#BEB5A9]/20 space-y-4">
-                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Configure Custom Colors</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    {/* Custom Primary */}
-                                    <div>
-                                        <label className="block mb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Primary Accent</label>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                value={customPrimary} 
-                                                onChange={(e) => handleCustomColorChange("primary", e.target.value)}
-                                                className="w-8 h-8 rounded-lg cursor-pointer border border-slate-250 outline-none"
-                                            />
-                                            <span className="text-[10px] font-semibold text-slate-600 font-mono uppercase">{customPrimary}</span>
-                                        </div>
-                                    </div>
- 
-                                    {/* Custom Light Accent */}
-                                    <div>
-                                        <label className="block mb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Light Accent / BG</label>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                value={customLight} 
-                                                onChange={(e) => handleCustomColorChange("light", e.target.value)}
-                                                className="w-8 h-8 rounded-lg cursor-pointer border border-slate-250 outline-none"
-                                            />
-                                            <span className="text-[10px] font-semibold text-slate-600 font-mono uppercase">{customLight}</span>
-                                        </div>
-                                    </div>
- 
-                                    {/* Custom Background */}
-                                    <div>
-                                        <label className="block mb-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Page Background</label>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                value={customBg} 
-                                                onChange={(e) => handleCustomColorChange("bg", e.target.value)}
-                                                className="w-8 h-8 rounded-lg cursor-pointer border border-slate-250 outline-none"
-                                            />
-                                            <span className="text-[10px] font-semibold text-slate-600 font-mono uppercase">{customBg}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                {/* Language Preferences Card */}
+                <div className="bg-white border border-[#BEB5A9]/20 rounded-2xl p-6 sm:p-8 space-y-4 shadow-[0_4px_16px_rgba(41,28,14,0.02)]">
+                    <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                        <Globe size={18} className="text-primary" />
+                        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">{t.language}</h3>
                     </div>
- 
-                    {/* Language Switcher */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-                            <Globe size={18} className="text-primary" />
-                            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">{t.language}</h3>
-                        </div>
- 
-                        <div className="flex flex-wrap gap-4">
-                            {/* English */}
-                            <button
-                                onClick={() => handleLanguageChange("en")}
-                                className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "en" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                English (EN)
-                            </button>
-                            
-                            {/* Hindi */}
-                            <button
-                                onClick={() => handleLanguageChange("hi")}
-                                className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "hi" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                हिन्दी (HI)
-                            </button>
 
-                            {/* Gujarati */}
-                            <button
-                                onClick={() => handleLanguageChange("gu")}
-                                className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "gu" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
-                            >
-                                ગુજરાતી (GU)
-                            </button>
-                        </div>
+                    <div className="flex flex-wrap gap-4">
+                        {/* English */}
+                        <button
+                            onClick={() => handleLanguageChange("en")}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "en" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
+                        >
+                            English (EN)
+                        </button>
+                        
+                        {/* Hindi */}
+                        <button
+                            onClick={() => handleLanguageChange("hi")}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "hi" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
+                        >
+                            हिन्दी (HI)
+                        </button>
+
+                        {/* Gujarati */}
+                        <button
+                            onClick={() => handleLanguageChange("gu")}
+                            className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition ${language === "gu" ? "border-primary bg-primary-light text-primary font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-650"}`}
+                        >
+                            ગુજરાતી (GU)
+                        </button>
                     </div>
- 
                 </div>
  
             </div>

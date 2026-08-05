@@ -317,8 +317,8 @@ function Layout({ children }) {
                                     {user?.businessType ? user.businessType.toUpperCase() : "RETAILER"}
                                 </span>
                             </div>
-                            <div className="p-[2.5px] rounded-full bg-gradient-to-tr from-[#1F4D3D] via-emerald-500 to-teal-300 shadow-xs">
-                                <div className="w-9 h-9 rounded-full bg-[#1F4D3D] border-2 border-white text-white flex items-center justify-center text-sm font-bold font-sans overflow-hidden">
+                            <div className="p-[2.5px] rounded-full bg-gradient-to-tr from-[var(--color-primary)] via-[var(--color-accent)] to-teal-300 shadow-xs">
+                                <div style={{ backgroundColor: "var(--color-primary)" }} className="w-9 h-9 rounded-full border-2 border-white text-white flex items-center justify-center text-sm font-bold font-sans overflow-hidden">
                                     {user?.profilePic ? (
                                         <img src={user.profilePic} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (

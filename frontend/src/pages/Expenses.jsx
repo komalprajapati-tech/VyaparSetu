@@ -40,7 +40,7 @@ function Expenses() {
         return (
             <Layout>
                 <div className="h-96 flex items-center justify-center">
-                    <Loader2 className={`animate-spin text-${colors.primary}`} size={32} />
+                    <Loader2 className="animate-spin text-theme-primary" style={{ color: "var(--color-primary)" }} size={32} />
                 </div>
             </Layout>
         );
@@ -92,7 +92,7 @@ function Expenses() {
                 
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                    <PieChart size={20} className={`text-${colors.primary}`} />
+                    <PieChart size={20} style={{ color: "var(--color-primary)" }} />
                     <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">{t.expenses}</h2>
                 </div>
 

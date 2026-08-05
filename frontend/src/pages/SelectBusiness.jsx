@@ -107,16 +107,19 @@ function SelectBusiness() {
                                 }}
                                 className="animate-card-entrance bg-white border border-slate-200/90 rounded-2xl p-8 text-left hover:border-emerald-500 transition-all duration-300 group flex flex-col justify-between h-80 cursor-pointer disabled:opacity-75 disabled:pointer-events-none relative overflow-hidden transform hover:-translate-y-1.5 shadow-sm hover:shadow-md"
                             >
-                                {/* Decorative Accent Line at top of card (Dashboard Green) */}
-                                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#1F4D3D] opacity-90 group-hover:opacity-100 group-hover:bg-emerald-500 transition-all duration-300" />
+                                 {/* Decorative Accent Line at top of card */}
+                                <div style={{ backgroundColor: "var(--color-primary)" }} className="absolute top-0 left-0 right-0 h-1.5 opacity-90 transition-all duration-300" />
 
                                 <div>
-                                    {/* Icon Container - Matching Dashboard Summary Card style */}
-                                    <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[#1F4D3D] mb-6 group-hover:bg-[#1F4D3D] group-hover:text-white group-hover:border-[#1F4D3D] transition-all duration-300 shadow-xs">
+                                    {/* Icon Container */}
+                                    <div 
+                                        style={{ backgroundColor: "var(--color-primary-light)", borderColor: "var(--color-primary-border)", color: "var(--color-primary)" }}
+                                        className="w-14 h-14 rounded-full border flex items-center justify-center mb-6 transition-all duration-300 shadow-xs"
+                                    >
                                         <Icon size={26} strokeWidth={2} />
                                     </div>
                                     
-                                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#1F4D3D] transition-colors">
+                                    <h3 style={{ color: "var(--color-primary)" }} className="text-xl font-bold transition-colors">
                                         {option.title}
                                     </h3>
                                     
@@ -125,9 +128,12 @@ function SelectBusiness() {
                                     </p>
                                 </div>
 
-                                {/* Call to action pill button (Dashboard Green style) */}
+                                {/* Call to action pill button */}
                                 <div className="mt-8">
-                                    <div className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-semibold bg-[#1F4D3D] text-white group-hover:bg-[#16372b] shadow-sm transition-all duration-200">
+                                    <div 
+                                        style={{ backgroundColor: "var(--color-primary)" }}
+                                        className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-semibold text-white shadow-sm transition-all duration-200"
+                                    >
                                         {isThisLoading ? (
                                             <>
                                                 <Loader2 size={15} className="animate-spin" />

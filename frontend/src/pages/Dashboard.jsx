@@ -256,12 +256,12 @@ function Dashboard() {
                     <div className="bg-[#E8F5EC] border border-[#d1ebd9] rounded-2xl px-6 py-4 animate-shine-once shadow-xs">
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#1F4D3D]">
-                                FY {new Date().getFullYear()}
-                            </span>
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-serif-classic font-bold text-[#1F4D3D] tracking-tight leading-snug mt-0.5">
-                            Welcome back, <span className="italic capitalize">{user?.ownerFullName ? user.ownerFullName.split(" ")[0] : "Komal"}</span>
+                        <span style={{ color: "var(--color-primary)" }} className="text-[10px] font-extrabold uppercase tracking-wider">
+                            MERCHANT DASHBOARD SUMMARY
+                        </span>
+                        <h1 style={{ color: "var(--color-primary)" }} className="text-2xl sm:text-3xl font-serif-classic font-bold tracking-tight leading-snug mt-0.5">
+                            Good Day, {user?.ownerFullName ? user.ownerFullName.split(" ")[0] : "Merchant"} 👋
                         </h1>
                     </div>
                     
@@ -277,9 +277,10 @@ function Dashboard() {
                                         setSelectedDate("");
                                         setDateFilter(filterVal);
                                     }}
+                                    style={isActive ? { backgroundColor: "var(--color-primary)" } : {}}
                                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                                         isActive 
-                                            ? "bg-[#1F4D3D] text-white shadow-pill-active" 
+                                            ? "text-white shadow-pill-active" 
                                             : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                                     }`}
                                 >
@@ -303,7 +304,8 @@ function Dashboard() {
                         {/* Quick Income */}
                         <button 
                             onClick={() => navigate("/add-entry?type=income")}
-                            className="bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl text-sm font-bold shadow-md shadow-emerald-700/20 active:scale-[0.98] transition-all cursor-pointer w-full"
+                            style={{ backgroundColor: "var(--color-accent)" }}
+                            className="text-white flex items-center justify-center gap-2 py-3.5 px-5 rounded-2xl text-sm font-bold shadow-md active:scale-[0.98] transition-all cursor-pointer w-full"
                         >
                             <span className="text-lg font-bold">+</span> Quick Income
                         </button>
@@ -420,7 +422,7 @@ function Dashboard() {
                                     <span className="w-3 h-3 bg-emerald-500 rounded-md shadow-2xs" /> Income
                                 </span>
                                 <span className="flex items-center gap-1.5 text-slate-700">
-                                    <span className="w-3 h-3 bg-[#1F4D3D] rounded-md shadow-2xs" /> Expense
+                                    <span style={{ backgroundColor: "var(--color-primary)" }} className="w-3 h-3 rounded-md shadow-2xs" /> Expense
                                 </span>
                             </div>
                         </div>
@@ -445,12 +447,12 @@ function Dashboard() {
                                      {/* SVG Gradient definitions */}
                                      <defs>
                                          <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                                             <stop offset="0%" stopColor="#10b981" />
-                                             <stop offset="100%" stopColor="#059669" />
+                                             <stop offset="0%" stopColor="var(--color-accent)" />
+                                             <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.8" />
                                          </linearGradient>
                                          <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                                             <stop offset="0%" stopColor="#1F4D3D" />
-                                             <stop offset="100%" stopColor="#0f2b22" />
+                                             <stop offset="0%" stopColor="var(--color-primary)" />
+                                             <stop offset="100%" stopColor="var(--color-primary-hover)" />
                                          </linearGradient>
                                      </defs>
 
@@ -664,7 +666,8 @@ function Dashboard() {
                         {/* Floating Green Plus Button */}
                         <button
                             onClick={() => navigate("/add-entry")}
-                            className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-gradient-to-b from-[#10b981] to-[#047857] hover:from-[#059669] hover:to-[#064e3b] text-white shadow-lg shadow-emerald-700/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                            style={{ backgroundColor: "var(--color-accent)" }}
+                            className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl text-white shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
                         >
                             <Plus size={26} strokeWidth={2.5} />
                         </button>

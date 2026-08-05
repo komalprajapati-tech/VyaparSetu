@@ -10,7 +10,7 @@ export function AppProvider({ children }) {
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
-    const [theme, setTheme] = useState(user?.themeColor || "forest_green");
+    const [theme, setTheme] = useState(() => localStorage.getItem("vyaparsetu_theme") || user?.themeColor || "forest_green");
     const [language, setLanguage] = useState(user?.language || "en");
     const [businessType, setBusinessType] = useState(user?.businessType || "");
 
@@ -20,7 +20,8 @@ export function AppProvider({ children }) {
 
     useEffect(() => {
         if (user) {
-            setTheme(user.themeColor || "forest_green");
+            const savedTheme = localStorage.getItem("vyaparsetu_theme") || user.themeColor || "forest_green";
+            setTheme(savedTheme);
             setLanguage(user.language || "en");
             setBusinessType(user.businessType || "");
         }
@@ -50,12 +51,31 @@ export function AppProvider({ children }) {
         }
     }, [token]);
 
+    const hexToRgba = (hex, alpha) => {
+        let c = hex.replace("#", "");
+        if (c.length === 3) c = c.split("").map(x => x + x).join("");
+        const num = parseInt(c, 16);
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    const adjustBrightness = (hex, percent) => {
+        let num = parseInt(hex.replace("#", ""), 16);
+        let amt = Math.round(2.55 * percent);
+        let R = (num >> 16) + amt;
+        let G = (num >> 8 & 0x00FF) + amt;
+        let B = (num & 0x0000FF) + amt;
+        return "#" + (0x1000000 + (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + (B < 255 ? (B < 1 ? 0 : B) : 255)).toString(16).slice(1);
+    };
+
     const applyTheme = (themeName, customColors = {}) => {
         let primary = "#1F4D3D";
-        let light = "#F0F5F3";
+        let light = "#E8F5EC";
         let hover = "#16372b";
-        let border = "#1F4D3D15";
-        let bg = "#FAF6F0";
+        let border = "rgba(31, 77, 61, 0.15)";
+        let bg = "#f8fafc";
         let sidebarBg = "#09261e";
         let accent = "#10b981";
 
@@ -63,7 +83,7 @@ export function AppProvider({ children }) {
             primary = "#1F4D3D";
             light = "#E8F5EC";
             hover = "#16372b";
-            border = "#1F4D3D15";
+            border = "rgba(31, 77, 61, 0.15)";
             bg = "#f8fafc";
             sidebarBg = "#09261e";
             accent = "#10b981";
@@ -71,7 +91,7 @@ export function AppProvider({ children }) {
             primary = "#1E3A5F";
             light = "#EBF3FA";
             hover = "#152943";
-            border = "#1E3A5F15";
+            border = "rgba(30, 58, 95, 0.15)";
             bg = "#f8fafc";
             sidebarBg = "#0d1b2a";
             accent = "#3b82f6";
@@ -79,7 +99,7 @@ export function AppProvider({ children }) {
             primary = "#6E473B";
             light = "#F7EFE9";
             hover = "#54362d";
-            border = "#BEB5A9";
+            border = "rgba(110, 71, 59, 0.15)";
             bg = "#FAF6F0";
             sidebarBg = "#2d1c17";
             accent = "#d97706";
@@ -87,11 +107,16 @@ export function AppProvider({ children }) {
             primary = customColors.primary || localStorage.getItem("vyaparsetu_custom_primary") || "#1F4D3D";
             light = customColors.light || localStorage.getItem("vyaparsetu_custom_light") || "#E8F5EC";
             bg = customColors.bg || localStorage.getItem("vyaparsetu_custom_bg") || "#f8fafc";
-            hover = primary;
-            border = primary + "20";
-            sidebarBg = primary;
+            hover = adjustBrightness(primary, -15);
+            border = hexToRgba(primary, 0.15);
+            sidebarBg = adjustBrightness(primary, -30);
             accent = primary;
         }
+
+        const accentLight = hexToRgba(accent, 0.15);
+        const primaryAlpha10 = hexToRgba(primary, 0.10);
+        const primaryAlpha20 = hexToRgba(primary, 0.20);
+        const primaryAlpha50 = hexToRgba(primary, 0.50);
 
         document.documentElement.style.setProperty('--color-primary', primary);
         document.documentElement.style.setProperty('--color-primary-light', light);
@@ -99,18 +124,30 @@ export function AppProvider({ children }) {
         document.documentElement.style.setProperty('--color-primary-border', border);
         document.documentElement.style.setProperty('--color-sidebar-bg', sidebarBg);
         document.documentElement.style.setProperty('--color-accent', accent);
+        document.documentElement.style.setProperty('--color-accent-light', accentLight);
         document.documentElement.style.setProperty('--color-page-bg', bg);
+        document.documentElement.style.setProperty('--color-primary-alpha10', primaryAlpha10);
+        document.documentElement.style.setProperty('--color-primary-alpha20', primaryAlpha20);
+        document.documentElement.style.setProperty('--color-primary-alpha50', primaryAlpha50);
+
+        localStorage.setItem("vyaparsetu_theme", themeName);
     };
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
         applyTheme(theme);
-    }, [theme]);
+    }, [theme, user]);
+
+    const changeTheme = (newTheme) => {
+        setTheme(newTheme);
+        applyTheme(newTheme);
+    };
 
     const setCustomThemeColors = (colorsObj) => {
         localStorage.setItem("vyaparsetu_custom_primary", colorsObj.primary);
         localStorage.setItem("vyaparsetu_custom_light", colorsObj.light);
         localStorage.setItem("vyaparsetu_custom_bg", colorsObj.bg);
+        setTheme("custom");
         applyTheme("custom", colorsObj);
     };
 
