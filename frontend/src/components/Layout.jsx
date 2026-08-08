@@ -18,10 +18,11 @@ import {
     Calendar,
     ChevronLeft,
     ChevronDown,
-    TrendingUp
+    TrendingUp,
+    Volume2
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import API_BASE_URL from "../config";
 
 function Layout({ children }) {
@@ -33,6 +34,177 @@ function Layout({ children }) {
     const [langOpen, setLangOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [activeToast, setActiveToast] = useState(null);
+    const seenToastIdsRef = useRef(new Set());
+
+    const getLocalizedNotification = (notif, forVoice = false, isNativeVoiceAvailable = false) => {
+        if (!notif) return { title: "", message: "" };
+
+        // Match time if present in message (e.g. "20:42")
+        const timeMatch = notif.message?.match(/\b\d{1,2}:\d{2}\b/);
+        const timeStr = timeMatch ? timeMatch[0] : "";
+
+        // Match customer name & amount for udhaar overdue
+        const udhaarMatch = notif.message?.match(/Customer (.*?)'s payment of ₹([\d.]+)/i);
+        const custName = udhaarMatch ? udhaarMatch[1] : "";
+        const amountStr = udhaarMatch ? udhaarMatch[2] : "";
+
+        if (language === "hi") {
+            if (forVoice && !isNativeVoiceAvailable) {
+                // Romanized Hinglish phonetics so any browser TTS voice speaks natural Hindi smoothly
+                if (notif.type === "eod_reminder") {
+                    return {
+                        title: "Din ka reminder",
+                        message: `Aapne aaj apne nirdharit samay ${timeStr || "22:00"} tak koi entry darj nahi ki hai.`
+                    };
+                }
+                if (notif.type === "udhaar_overdue") {
+                    return {
+                        title: "Udhaar bhugtan alert",
+                        message: `Customer ${custName || "Upbhokta"} ka ${amountStr} rupaye ka bhugtan 7 dino se adhik samay se baaki hai.`
+                    };
+                }
+                if (notif.type === "inactivity") {
+                    return {
+                        title: "Gatividhi reminder",
+                        message: "Aapne haal me koi len den darj nahi kiya hai. Apna bahi khata update rakhein!"
+                    };
+                }
+            } else {
+                if (notif.type === "eod_reminder") {
+                    return {
+                        title: "दिन का रिमाइंडर",
+                        message: `आपने आज अपने निर्धारित समय ${timeStr || "22:00"} तक कोई प्रविष्टि दर्ज नहीं की है।`
+                    };
+                }
+                if (notif.type === "udhaar_overdue") {
+                    return {
+                        title: "उधार भुगतान अलर्ट",
+                        message: `ग्राहक ${custName || "उपयोगकर्ता"} का ₹${amountStr} का भुगतान 7 दिनों से अधिक समय से बकाया है।`
+                    };
+                }
+                if (notif.type === "inactivity") {
+                    return {
+                        title: "गतिविधि रिमाइंडर",
+                        message: "आपने हाल में कोई लेन-देन दर्ज नहीं किया है। अपना बहीखाता अपडेट रखें!"
+                    };
+                }
+            }
+        } else if (language === "gu") {
+            if (notif.type === "eod_reminder") {
+                return {
+                    title: "દિવસ નો રિમાઇન્ડર",
+                    message: `તમે આજે તમારા નિર્ધારિત સમય ${timeStr || "22:00"} સુધી કોઈ નોંધ દાખલ કરી નથી.`
+                };
+            }
+            if (notif.type === "udhaar_overdue") {
+                return {
+                    title: "ઉધાર ચૂકવણી એલર્ટ",
+                    message: `ગ્રાહક ${custName || "વપરાશકર્તા"} ની ₹${amountStr} ની ચૂકવણી 7 દિવસથી વધુ સમયથી બાકી છે.`
+                };
+            }
+            if (notif.type === "inactivity") {
+                return {
+                    title: "પ્રવૃત્તિ રિમાઇન્ડર",
+                    message: "તમે તાજેતરમાં કોઈ વ્યવહાર નોંધ્યો નથી. તમારું લેજર અપડેટ રાખો!"
+                };
+            }
+        }
+
+        return {
+            title: notif.title,
+            message: notif.message
+        };
+    };
+
+    const playNotificationSoundAndVoice = (notifObj) => {
+        // 1. Play pleasant soft chime sound using Web Audio API
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                const audioCtx = new AudioCtx();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.12); // A5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            }
+        } catch (e) {
+            console.error("Audio chime error:", e);
+        }
+
+        // 2. Read out notification aloud in active language using Web Speech API
+        try {
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+
+                const speakNow = (allVoices) => {
+                    let matchingVoice = null;
+                    const targetLang = language === "hi" ? "hi" : language === "gu" ? "gu" : "en";
+
+                    if (targetLang === "hi") {
+                        matchingVoice = allVoices.find(v => 
+                            v.lang.toLowerCase().includes("hi") || 
+                            v.name.toLowerCase().includes("hindi") || 
+                            v.name.toLowerCase().includes("swara") || 
+                            v.name.toLowerCase().includes("hemant") || 
+                            v.name.toLowerCase().includes("kalpana")
+                        );
+                    } else if (targetLang === "gu") {
+                        matchingVoice = allVoices.find(v => 
+                            v.lang.toLowerCase().includes("gu") || 
+                            v.name.toLowerCase().includes("gujarati")
+                        );
+                    }
+
+                    let indianEngVoice = null;
+                    if (!matchingVoice) {
+                        indianEngVoice = allVoices.find(v => 
+                            v.lang.toLowerCase().includes("en-in") || 
+                            v.name.toLowerCase().includes("india") || 
+                            v.name.toLowerCase().includes("ravi") || 
+                            v.name.toLowerCase().includes("heera")
+                        );
+                    }
+
+                    const isNativeVoiceAvailable = Boolean(matchingVoice);
+                    const localized = getLocalizedNotification(notifObj, true, isNativeVoiceAvailable);
+                    const textToSpeak = `${localized.title}. ${localized.message}`;
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+                    if (matchingVoice) {
+                        utterance.voice = matchingVoice;
+                        utterance.lang = matchingVoice.lang;
+                    } else if (indianEngVoice) {
+                        utterance.voice = indianEngVoice;
+                        utterance.lang = "en-IN";
+                    } else {
+                        utterance.lang = language === "hi" ? "hi-IN" : language === "gu" ? "gu-IN" : "en-US";
+                    }
+
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                };
+
+                let voices = window.speechSynthesis.getVoices();
+                if (voices && voices.length > 0) {
+                    speakNow(voices);
+                } else {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        voices = window.speechSynthesis.getVoices();
+                        speakNow(voices);
+                    };
+                }
+            }
+        } catch (e) {
+            console.error("Voice synthesis error:", e);
+        }
+    };
 
     const fetchNotifications = () => {
         if (!token) return;
@@ -45,10 +217,26 @@ function Layout({ children }) {
         .then(data => {
             if (data.success) {
                 setNotifications(data.notifications);
-                // Trigger Toast pop-up for unread notifications
+                // Trigger Toast pop-up for unread notifications that haven't been shown in this session
                 const unreadNotifs = data.notifications.filter(n => !n.isRead);
-                if (unreadNotifs.length > 0 && !activeToast) {
-                    setActiveToast(unreadNotifs[0]);
+                if (unreadNotifs.length > 0) {
+                    const newUnread = unreadNotifs.find(n => !seenToastIdsRef.current.has(n.id));
+                    if (newUnread) {
+                        setActiveToast(newUnread);
+                        seenToastIdsRef.current.add(newUnread.id);
+
+                        const localized = getLocalizedNotification(newUnread);
+                        // Play sound chime and speak out notification aloud in selected language
+                        playNotificationSoundAndVoice(newUnread);
+
+                        // Browser native pop-up notification (if permission granted)
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification(localized.title || "VyaparSetu Alert", {
+                                body: localized.message,
+                                icon: "/favicon.ico"
+                            });
+                        }
+                    }
                 }
             }
         })
@@ -56,10 +244,54 @@ function Layout({ children }) {
     };
 
     useEffect(() => {
+        // Request browser Notification permission on mount
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000);
-        return () => clearInterval(interval);
-    }, [token]);
+
+        // Exact-time trigger: schedule precise fetch at the user's configured reminder time
+        let exactTimerId = null;
+        if (user?.eodReminderEnabled !== false) {
+            const reminderTimeStr = user?.eodReminderTime || "22:00";
+            const [h, m] = reminderTimeStr.split(":").map(Number);
+            const now = new Date();
+            const target = new Date();
+            target.setHours(h, m, 0, 0);
+            const delay = target.getTime() - now.getTime();
+            if (delay > 0) {
+                exactTimerId = setTimeout(() => {
+                    fetchNotifications();
+                }, delay);
+            } else {
+                // If scheduled time has already arrived/passed today, fetch immediately
+                fetchNotifications();
+            }
+        }
+
+        // Smart polling: Check every 60 seconds, but only if the user is actively viewing the tab
+        const interval = setInterval(() => {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
+        }, 60000); // 60 seconds
+
+        // Fetch immediately when user returns to this browser tab
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            if (exactTimerId) clearTimeout(exactTimerId);
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [token, user?.eodReminderTime, user?.eodReminderEnabled]);
 
     const handleMarkRead = (id) => {
         fetch(`${API_BASE_URL}/api/auth/notifications/${id}/read/`, {
@@ -89,6 +321,18 @@ function Layout({ children }) {
                 setNotifications(prev => prev.filter(n => n.id !== id));
             }
         });
+    };
+
+    const closeActiveToast = (id, navigateToUdhaar = false) => {
+        if (id) {
+            seenToastIdsRef.current.add(id);
+            handleMarkRead(id);
+            handleDismiss(id);
+        }
+        setActiveToast(null);
+        if (navigateToUdhaar) {
+            navigate("/udhaar");
+        }
     };
 
     const handleLanguageChange = async (langId) => {
@@ -371,33 +615,36 @@ function Layout({ children }) {
                                             <p className="text-[10px] text-slate-400 mt-1">You're all caught up!</p>
                                         </div>
                                     ) : (
-                                        notifications.map(n => (
-                                            <div 
-                                                key={n.id} 
-                                                onClick={() => handleMarkRead(n.id)}
-                                                className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between hover:shadow-xs cursor-pointer ${n.isRead ? 'bg-[#ffffff] border-slate-100 text-slate-500' : 'bg-emerald-50/40 border-emerald-200/60 text-slate-900'}`}
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="flex items-start gap-2">
-                                                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0 mt-1.5" />}
-                                                        <div>
-                                                            <h4 className="text-xs font-extrabold leading-tight">{n.title}</h4>
-                                                            <p className="text-[11px] mt-1 text-slate-600 leading-normal">{n.message}</p>
-                                                            <span className="text-[9px] text-slate-400 mt-2 block font-semibold">{n.createdAt}</span>
+                                        notifications.map(n => {
+                                            const loc = getLocalizedNotification(n);
+                                            return (
+                                                <div 
+                                                    key={n.id} 
+                                                    onClick={() => handleMarkRead(n.id)}
+                                                    className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between hover:shadow-xs cursor-pointer ${n.isRead ? 'bg-[#ffffff] border-slate-100 text-slate-500' : 'bg-emerald-50/40 border-emerald-200/60 text-slate-900'}`}
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex items-start gap-2">
+                                                            {!n.isRead && <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0 mt-1.5" />}
+                                                            <div>
+                                                                <h4 className="text-xs font-extrabold leading-tight">{loc.title}</h4>
+                                                                <p className="text-[11px] mt-1 text-slate-600 leading-normal">{loc.message}</p>
+                                                                <span className="text-[9px] text-slate-400 mt-2 block font-semibold">{n.createdAt}</span>
+                                                            </div>
                                                         </div>
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDismiss(n.id);
+                                                            }}
+                                                            className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition"
+                                                        >
+                                                            <X size={13} />
+                                                        </button>
                                                     </div>
-                                                    <button 
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDismiss(n.id);
-                                                        }}
-                                                        className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition"
-                                                    >
-                                                        <X size={13} />
-                                                    </button>
                                                 </div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     )}
                                 </div>
 
@@ -425,46 +672,49 @@ function Layout({ children }) {
                 </main>
 
                 {/* Floating Reminder Toast Pop-up */}
-                {activeToast && (
-                    <div className="fixed top-20 right-6 z-50 max-w-sm w-full bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700/60 animate-in slide-in-from-top-4 duration-300 flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Bell size={18} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h5 className="text-xs font-black text-amber-400 uppercase tracking-wider">{activeToast.title}</h5>
-                            <p className="text-xs text-slate-200 mt-1 leading-snug font-medium">{activeToast.message}</p>
-                            <div className="flex items-center gap-3 mt-3">
-                                <button
-                                    onClick={() => {
-                                        handleMarkRead(activeToast.id);
-                                        setActiveToast(null);
-                                    }}
-                                    className="text-[11px] font-extrabold bg-[#00a86b] hover:bg-[#00965e] text-white px-3 py-1 rounded-lg transition"
-                                >
-                                    Dismiss
-                                </button>
-                                {activeToast.type === 'udhaar_overdue' && (
-                                    <button
-                                        onClick={() => {
-                                            handleMarkRead(activeToast.id);
-                                            setActiveToast(null);
-                                            navigate("/udhaar");
-                                        }}
-                                        className="text-[11px] font-bold text-amber-300 hover:underline"
-                                    >
-                                        View Udhaar Book
-                                    </button>
-                                )}
+                {activeToast && (() => {
+                    const loc = getLocalizedNotification(activeToast);
+                    return (
+                        <div className="fixed top-20 right-6 z-50 max-w-sm w-full bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700/60 animate-in slide-in-from-top-4 duration-300 flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Bell size={18} />
                             </div>
+                            <div className="flex-1 min-w-0">
+                                <h5 className="text-xs font-black text-amber-400 uppercase tracking-wider">{loc.title}</h5>
+                                <p className="text-xs text-slate-200 mt-1 leading-snug font-medium">{loc.message}</p>
+                                <div className="flex items-center gap-3 mt-3">
+                                    <button
+                                        onClick={() => closeActiveToast(activeToast.id)}
+                                        className="text-[11px] font-extrabold bg-[#00a86b] hover:bg-[#00965e] text-white px-3 py-1 rounded-lg transition cursor-pointer"
+                                    >
+                                        Dismiss
+                                    </button>
+                                    <button
+                                        onClick={() => playNotificationSoundAndVoice(activeToast)}
+                                        className="p-1 rounded-md text-amber-400 hover:bg-white/10 transition cursor-pointer"
+                                        title="Replay Voice Alert"
+                                    >
+                                        <Volume2 size={16} />
+                                    </button>
+                                    {activeToast.type === 'udhaar_overdue' && (
+                                        <button
+                                            onClick={() => closeActiveToast(activeToast.id, true)}
+                                            className="text-[11px] font-bold text-amber-300 hover:underline cursor-pointer"
+                                        >
+                                            View Udhaar Book
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => closeActiveToast(activeToast.id)}
+                                className="text-slate-400 hover:text-white text-xs font-bold p-1 cursor-pointer"
+                            >
+                                ✕
+                            </button>
                         </div>
-                        <button
-                            onClick={() => setActiveToast(null)}
-                            className="text-slate-400 hover:text-white text-xs font-bold p-1"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                )}
+                    );
+                })()}
 
             </div>
         </div>

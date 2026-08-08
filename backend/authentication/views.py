@@ -730,28 +730,47 @@ def notifications_list(request):
                 type="summary_monthly"
             ).save()
 
-        # 5. End-of-day reminder if no income entry logged by a set time
+        # 5. End-of-day reminder if no entry logged by a set time
         if getattr(user, "eod_reminder_enabled", True):
             reminder_time_str = getattr(user, "eod_reminder_time", "22:00")
             try:
                 rem_h, rem_m = map(int, reminder_time_str.split(":"))
-                reminder_time_today = today_start_local.replace(hour=rem_h, minute=rem_m)
-                if now_local >= reminder_time_today:
-                    today_income_exists = Entry.objects(
+                reminder_time_today = now_local.replace(hour=rem_h, minute=rem_m, second=0, microsecond=0)
+                
+                # Check if ANY entry exists for today
+                today_entry_exists = Entry.objects(
+                    user_email=user_email, 
+                    date__gte=today_start_utc
+                ).first()
+
+                if today_entry_exists:
+                    # Auto-dismiss reminder if user has added an entry today
+                    Notification.objects(
                         user_email=user_email, 
-                        type="income", 
-                        date__gte=today_start_utc
+                        type="eod_reminder", 
+                        created_at__gte=today_start_utc
+                    ).update(is_dismissed=True, is_read=True)
+                elif now_local >= reminder_time_today:
+                    existing = Notification.objects(
+                        user_email=user_email, 
+                        type="eod_reminder", 
+                        created_at__gte=today_start_utc,
+                        is_dismissed=False
                     ).first()
-                    if not today_income_exists:
-                        existing = Notification.objects(user_email=user_email, type="eod_reminder", created_at__gte=today_start_utc).first()
-                        if not existing:
-                            Notification(
-                                user_email=user_email,
-                                title="End-of-day Reminder",
-                                message=f"You haven't logged any income entries today by your scheduled time of {reminder_time_str}.",
-                                type="eod_reminder"
-                            ).save()
-            except Exception:
+                    if existing:
+                        if reminder_time_str not in existing.message:
+                            existing.message = f"You haven't logged any entries today by your scheduled time of {reminder_time_str}."
+                            existing.is_read = False
+                            existing.save()
+                    else:
+                        Notification(
+                            user_email=user_email,
+                            title="End-of-Day Reminder",
+                            message=f"You haven't logged any entries today by your scheduled time of {reminder_time_str}.",
+                            type="eod_reminder"
+                        ).save()
+            except Exception as ex:
+                print("EOD reminder error:", ex)
                 pass
     except Exception as e:
         print("Error generating notifications:", e)
