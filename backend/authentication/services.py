@@ -6,14 +6,28 @@ import requests
 from django.conf import settings
 import os
 import bcrypt
+from mongoengine.context_managers import switch_db
+
+
+def get_db_alias(business_type: str = "retailer") -> str:
+    if not business_type:
+        return "retailer"
+    b_type = str(business_type).lower()
+    if "food" in b_type or "restaurant" in b_type:
+        return "food"
+    elif "service" in b_type:
+        return "service"
+    return "retailer"
 
 
 def generate_otp():
     return str(random.randint(100000, 999999))
 
 
-def email_exists(email):
-    return User.objects(email=email).first() is not None
+def email_exists(email, business_type: str = "retailer"):
+    alias = get_db_alias(business_type)
+    with switch_db(User, alias):
+        return User.objects(email=email).first() is not None
 
 
 def hash_otp(otp: str) -> str:
@@ -43,25 +57,27 @@ def check_rate_limit(user) -> bool:
     return True
 
 
-def create_and_save_otp(email: str, otp: str):
-    otp_hash = hash_otp(otp)
-    otp_doc = OTP.objects(email=email).first()
-    if otp_doc:
-        otp_doc.otp_hash = otp_hash
-        otp_doc.plain_otp = otp
-        otp_doc.attempts = 0
-        otp_doc.created_at = datetime.utcnow()
-        otp_doc.expires_at = datetime.utcnow() + timedelta(minutes=5)
-    else:
-        otp_doc = OTP(
-            email=email,
-            otp_hash=otp_hash,
-            plain_otp=otp,
-            attempts=0,
-            created_at=datetime.utcnow(),
-            expires_at=datetime.utcnow() + timedelta(minutes=5)
-        )
-    otp_doc.save()
+def create_and_save_otp(email: str, otp: str, business_type: str = "retailer"):
+    alias = get_db_alias(business_type)
+    with switch_db(OTP, alias):
+        otp_hash = hash_otp(otp)
+        otp_doc = OTP.objects(email=email).first()
+        if otp_doc:
+            otp_doc.otp_hash = otp_hash
+            otp_doc.plain_otp = otp
+            otp_doc.attempts = 0
+            otp_doc.created_at = datetime.utcnow()
+            otp_doc.expires_at = datetime.utcnow() + timedelta(minutes=5)
+        else:
+            otp_doc = OTP(
+                email=email,
+                otp_hash=otp_hash,
+                plain_otp=otp,
+                attempts=0,
+                created_at=datetime.utcnow(),
+                expires_at=datetime.utcnow() + timedelta(minutes=5)
+            )
+        otp_doc.save()
 
 
 def send_otp_email(email, otp):
@@ -153,52 +169,58 @@ def send_otp_email(email, otp):
 
 
 def create_user(data):
+    business_type = data.get("businessType", "retailer")
+    alias = get_db_alias(business_type)
     hashed_password = make_password(data["password"])
     otp = generate_otp()
 
-    user = User(
-        business_name=data["businessName"],
-        owner_full_name=data["ownerFullName"],
-        email=data["email"],
-        password_hash=hashed_password,
-        otp_request_timestamps=[datetime.utcnow()],
-        is_verified=False
-    )
-    user.save()
-    
-    # Save the OTP
-    create_and_save_otp(user.email, otp)
-    
-    # Trigger the OTP email send
-    email_sent, email_msg = send_otp_email(user.email, otp)
-    
-    return user, email_sent, email_msg
+    with switch_db(User, alias):
+        user = User(
+            business_name=data["businessName"],
+            owner_full_name=data["ownerFullName"],
+            email=data["email"],
+            password_hash=hashed_password,
+            otp_request_timestamps=[datetime.utcnow()],
+            is_verified=False,
+            business_type=business_type
+        )
+        user.save()
+        
+        # Save the OTP
+        create_and_save_otp(user.email, otp, business_type=business_type)
+        
+        # Trigger the OTP email send
+        email_sent, email_msg = send_otp_email(user.email, otp)
+        
+        return user, email_sent, email_msg
 
 
-def resend_otp_service(email: str):
-    user = User.objects(email=email).first()
-    if not user:
-        return False, "User not found."
-    
-    if user.is_verified:
-        return False, "Email already verified."
+def resend_otp_service(email: str, business_type: str = "retailer"):
+    alias = get_db_alias(business_type)
+    with switch_db(User, alias):
+        user = User.objects(email=email).first()
+        if not user:
+            return False, "User not found."
         
-    # Check rate limit
-    if not check_rate_limit(user):
-        return False, "Too many OTP requests. Please try again after 1 hour."
+        if user.is_verified:
+            return False, "Email already verified."
+            
+        # Check rate limit
+        if not check_rate_limit(user):
+            return False, "Too many OTP requests. Please try again after 1 hour."
+            
+        # Generate new OTP
+        otp = generate_otp()
         
-    # Generate new OTP
-    otp = generate_otp()
-    
-    # Save hashed OTP
-    create_and_save_otp(user.email, otp)
-    
-    # Send email
-    email_sent, email_msg = send_otp_email(user.email, otp)
-    if not email_sent:
-        return False, f"Failed to send OTP: {email_msg}"
+        # Save hashed OTP
+        create_and_save_otp(user.email, otp, business_type=business_type)
         
-    return True, "OTP sent to your email."
+        # Send email
+        email_sent, email_msg = send_otp_email(user.email, otp)
+        if not email_sent:
+            return False, f"Failed to send OTP: {email_msg}"
+            
+        return True, "OTP sent to your email."
 
 
 def send_reset_otp_email(email, otp):
@@ -224,10 +246,10 @@ def send_reset_otp_email(email, otp):
                 "email": email
             }
         ],
-        "subject": "Reset Your LekhBook Password",
+        "subject": "Reset Your VyaparSetu Password",
         "htmlContent": f"""
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2>LekhBook Password Reset</h2>
+            <h2>VyaparSetu Password Reset</h2>
             <p>You requested to reset your password. Use the verification code below to proceed:</p>
             <h1 style="color: #ef4444; font-size: 32px; letter-spacing: 2px;">{otp}</h1>
             <p>This reset code is valid for 5 minutes.</p>
@@ -275,43 +297,47 @@ def send_reset_otp_email(email, otp):
         return False
 
 
-def create_and_save_reset_otp(email: str, otp: str):
-    otp_hash = hash_otp(otp)
-    otp_doc = ResetOTP.objects(email=email).first()
-    if otp_doc:
-        otp_doc.otp_hash = otp_hash
-        otp_doc.attempts = 0
-        otp_doc.created_at = datetime.utcnow()
-        otp_doc.expires_at = datetime.utcnow() + timedelta(minutes=5)
-    else:
-        otp_doc = ResetOTP(
-            email=email,
-            otp_hash=otp_hash,
-            attempts=0,
-            created_at=datetime.utcnow(),
-            expires_at=datetime.utcnow() + timedelta(minutes=5)
-        )
-    otp_doc.save()
+def create_and_save_reset_otp(email: str, otp: str, business_type: str = "retailer"):
+    alias = get_db_alias(business_type)
+    with switch_db(ResetOTP, alias):
+        otp_hash = hash_otp(otp)
+        otp_doc = ResetOTP.objects(email=email).first()
+        if otp_doc:
+            otp_doc.otp_hash = otp_hash
+            otp_doc.attempts = 0
+            otp_doc.created_at = datetime.utcnow()
+            otp_doc.expires_at = datetime.utcnow() + timedelta(minutes=5)
+        else:
+            otp_doc = ResetOTP(
+                email=email,
+                otp_hash=otp_hash,
+                attempts=0,
+                created_at=datetime.utcnow(),
+                expires_at=datetime.utcnow() + timedelta(minutes=5)
+            )
+        otp_doc.save()
 
 
-def forgot_password_service(email: str):
-    user = User.objects(email=email).first()
-    if not user:
-        return False, "Email not registered."
+def forgot_password_service(email: str, business_type: str = "retailer"):
+    alias = get_db_alias(business_type)
+    with switch_db(User, alias):
+        user = User.objects(email=email).first()
+        if not user:
+            return False, "Email not registered."
 
-    # Check rate limit
-    if not check_rate_limit(user):
-        return False, "Too many OTP requests. Please try again after 1 hour."
+        # Check rate limit
+        if not check_rate_limit(user):
+            return False, "Too many OTP requests. Please try again after 1 hour."
 
-    # Generate OTP
-    otp = generate_otp()
+        # Generate OTP
+        otp = generate_otp()
 
-    # Save hashed reset OTP
-    create_and_save_reset_otp(email, otp)
+        # Save hashed reset OTP
+        create_and_save_reset_otp(email, otp, business_type=business_type)
 
-    # Send reset email
-    email_sent = send_reset_otp_email(email, otp)
-    if not email_sent:
-        return False, "Failed to send verification email. Please try again later."
+        # Send reset email
+        email_sent = send_reset_otp_email(email, otp)
+        if not email_sent:
+            return False, "Failed to send verification email. Please try again later."
 
-    return True, "Reset OTP sent to your email."
+        return True, "Reset OTP sent to your email."

@@ -11,6 +11,7 @@ function Login() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [businessType, setBusinessType] = useState("retailer");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -40,13 +41,13 @@ function Login() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, businessType }),
         })
         .then(async (res) => {
             const data = await res.json();
             if (!res.ok) {
                 if (res.status === 403) {
-                    navigate("/otp", { state: { email } });
+                    navigate("/otp", { state: { email, businessType } });
                     return;
                 }
                 throw new Error(data.message || "Login failed.");
@@ -111,6 +112,48 @@ function Login() {
                 {/* Login Form */}
                 <form onSubmit={handleSubmit} className="space-y-5">
                     
+                    {/* SECTION: BUSINESS MODULE SELECTION */}
+                    <div className="space-y-2">
+                        <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            SELECT BUSINESS MODULE
+                        </span>
+                        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-2xl">
+                            <button
+                                type="button"
+                                onClick={() => setBusinessType("retailer")}
+                                className={`py-2 text-xs font-semibold rounded-xl transition-all ${
+                                    businessType === "retailer" 
+                                        ? "bg-white text-slate-900 shadow-sm" 
+                                        : "text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                Retailer
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setBusinessType("food")}
+                                className={`py-2 text-xs font-semibold rounded-xl transition-all ${
+                                    businessType === "food" 
+                                        ? "bg-white text-slate-900 shadow-sm" 
+                                        : "text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                Restaurant
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setBusinessType("service")}
+                                className={`py-2 text-xs font-semibold rounded-xl transition-all ${
+                                    businessType === "service" 
+                                        ? "bg-white text-slate-900 shadow-sm" 
+                                        : "text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                Service
+                            </button>
+                        </div>
+                    </div>
+
                     {/* SECTION: LOGIN CREDENTIALS */}
                     <div className="space-y-3">
                         <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">

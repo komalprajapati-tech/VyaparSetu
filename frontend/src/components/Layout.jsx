@@ -19,7 +19,9 @@ import {
     ChevronLeft,
     ChevronDown,
     TrendingUp,
-    Volume2
+    Volume2,
+    Receipt,
+    UtensilsCrossed
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useState, useEffect, useRef } from "react";
@@ -346,7 +348,15 @@ function Layout({ children }) {
         return "English (EN)";
     };
 
-    const navItems = [
+    const effectiveBusinessType = user?.businessType || "retailer";
+
+    const navItems = effectiveBusinessType === "food" ? [
+        { name: t.dashboard || "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+        { name: "Billing", path: "/restaurant/billing", icon: Receipt },
+        { name: "Products & Menu", path: "/restaurant/products", icon: UtensilsCrossed },
+        { name: "Appearance", path: "/appearance", icon: Palette },
+        { name: t.settings || "Settings", path: "/settings", icon: Settings }
+    ] : [
         { name: t.dashboard || "Dashboard", path: "/dashboard", icon: LayoutDashboard },
         { name: t.addEntry || "Add Entry", path: "/add-entry", icon: PlusCircle },
         { name: t.reports || "Reports", path: "/reports", icon: FileText },

@@ -56,7 +56,7 @@ function Register() {
             })
             .then((data) => {
                 setLoading(false);
-                navigate("/otp", { state: { email } });
+                navigate("/otp", { state: { email, businessType } });
             })
             .catch((err) => {
                 setLoading(false);

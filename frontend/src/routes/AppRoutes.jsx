@@ -14,6 +14,9 @@ import Expenses from "../pages/Expenses";
 import Settings from "../pages/Settings";
 import Appearance from "../pages/Appearance";
 import PersonalPlanning from "../pages/PersonalPlanning";
+import RestaurantDashboard from "../pages/RestaurantDashboard";
+import RestaurantProducts from "../pages/RestaurantProducts";
+import RestaurantBilling from "../pages/RestaurantBilling";
 
 // Helper to check token expiration
 const isTokenExpired = (t) => {
@@ -84,7 +87,23 @@ function AppRoutes() {
                     path="/dashboard" 
                     element={
                         <ProtectedRoute>
-                            <Dashboard />
+                            {effectiveBusinessType === "food" ? <RestaurantDashboard /> : <Dashboard />}
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/restaurant/products" 
+                    element={
+                        <ProtectedRoute>
+                            <RestaurantProducts />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/restaurant/billing" 
+                    element={
+                        <ProtectedRoute>
+                            <RestaurantBilling />
                         </ProtectedRoute>
                     } 
                 />

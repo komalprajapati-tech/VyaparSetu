@@ -14,3 +14,7 @@
 
 [2026-07-27 05:24:05.004377] Failed to send to prajapatimangal9889@gmail.com. Status: 401. Response: {"message":"We have detected you are using an unrecognised IP address 2409:40c1:403b:f3cf:445:2a71:c731:9742. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
 
+[2026-08-10 14:43:19.703946] Failed to send to komalprajapati112006@gmial.com. Details: Brevo HTTP 401: {"message":"API Key is not enabled","code":"unauthorized"}
+
+[2026-08-10 14:52:31.316625] Failed to send to komalprajapati112006@gmail.com. Details: Brevo HTTP 401: {"message":"API Key is not enabled","code":"unauthorized"}
+

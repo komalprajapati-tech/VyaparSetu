@@ -10,6 +10,7 @@ function OtpVerification() {
     const { loginUser } = useApp();
 
     const email = location.state?.email || "your email";
+    const businessType = location.state?.businessType || "retailer";
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [timer, setTimer] = useState(30);
     const [loading, setLoading] = useState(false);
@@ -76,7 +77,7 @@ function OtpVerification() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, otp: otpCode }),
+            body: JSON.stringify({ email, otp: otpCode, businessType }),
         })
         .then(async (res) => {
             const data = await res.json();
@@ -112,7 +113,7 @@ function OtpVerification() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, businessType }),
         })
         .then(async (res) => {
             const data = await res.json();
