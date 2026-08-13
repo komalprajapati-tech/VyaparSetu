@@ -352,8 +352,9 @@ function Layout({ children }) {
 
     const navItems = effectiveBusinessType === "food" ? [
         { name: t.dashboard || "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-        { name: "Billing", path: "/restaurant/billing", icon: Receipt },
+        { name: "Billing POS", path: "/restaurant/billing", icon: Receipt },
         { name: "Products & Menu", path: "/restaurant/products", icon: UtensilsCrossed },
+        { name: t.reports || "Reports & Ledger", path: "/reports", icon: FileText },
         { name: "Appearance", path: "/appearance", icon: Palette },
         { name: t.settings || "Settings", path: "/settings", icon: Settings }
     ] : [

@@ -1,5 +1,6 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import API_BASE_URL from "../config";
+import OverlayLoader from "../components/OverlayLoader";
 
 const AppContext = createContext();
 
@@ -17,6 +18,71 @@ export function AppProvider({ children }) {
     // Global date states
     const [selectedDate, setSelectedDate] = useState("");
     const [dateFilter, setDateFilter] = useState("today");
+
+    // Global Overlay Loader & Server Keep-Alive states
+    const [overlayState, setOverlayState] = useState({
+        show: false,
+        message: "Processing request...",
+        subtext: "",
+        isWakingUp: false
+    });
+
+    // 1. Keep-Alive Ping: Fires every 10 minutes (safe under Render's 15-min idle timeout)
+    useEffect(() => {
+        const pingHealth = async () => {
+            try {
+                await fetch(`${API_BASE_URL}/api/health/`);
+            } catch (e) {
+                // Ignore silent background ping errors
+            }
+        };
+
+        // Ping once on initial mount
+        pingHealth();
+
+        // 10 minute interval = 600,000 ms
+        const interval = setInterval(pingHealth, 10 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const showOverlayLoader = (message = "Processing request...", subtext = "") => {
+        setOverlayState({ show: true, message, subtext, isWakingUp: false });
+    };
+
+    const hideOverlayLoader = () => {
+        setOverlayState({ show: false, message: "", subtext: "", isWakingUp: false });
+    };
+
+    // Smart API fetch wrapper that detects cold starts (>3 seconds) and shows friendly wakeup state
+    const apiFetch = async (endpoint, options = {}, customMessage = "Processing request...") => {
+        showOverlayLoader(customMessage);
+        
+        let wakingUpTimer = setTimeout(() => {
+            setOverlayState(prev => ({
+                ...prev,
+                isWakingUp: true,
+                message: "Server is waking up, hang tight...",
+                subtext: "Render free instances take a few seconds to start up."
+            }));
+        }, 3000);
+
+        try {
+            const res = await fetch(endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`, {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                }
+            });
+            clearTimeout(wakingUpTimer);
+            hideOverlayLoader();
+            return res;
+        } catch (err) {
+            clearTimeout(wakingUpTimer);
+            hideOverlayLoader();
+            throw err;
+        }
+    };
 
     useEffect(() => {
         if (user) {
@@ -490,6 +556,10 @@ export function AppProvider({ children }) {
             businessType,
             selectedDate,
             dateFilter,
+            overlayState,
+            showOverlayLoader,
+            hideOverlayLoader,
+            apiFetch,
             setTheme,
             setLanguage,
             setBusinessType,
@@ -504,6 +574,12 @@ export function AppProvider({ children }) {
             setCustomThemeColors
         }}>
             {children}
+            <OverlayLoader 
+                show={overlayState.show} 
+                message={overlayState.message} 
+                subtext={overlayState.subtext} 
+                isWakingUp={overlayState.isWakingUp} 
+            />
         </AppContext.Provider>
     );
 }

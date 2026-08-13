@@ -14,26 +14,28 @@ function Expenses() {
         fetchExpenses();
     }, [token]);
 
-    const fetchExpenses = () => {
+    const fetchExpenses = async () => {
         setLoading(true);
-        fetch(`${API_BASE_URL}/api/ledger/summary/`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/ledger/summary/`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            const text = await res.text();
+            let data = {};
+            try {
+                data = JSON.parse(text);
+            } catch (parseErr) {
+                throw new Error("Server returned an invalid HTML error response.");
             }
-        })
-        .then(async (res) => {
-            const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to load expenses data.");
-            return data;
-        })
-        .then((data) => {
             setSummary(data.summary);
-            setLoading(false);
-        })
-        .catch((err) => {
+        } catch (err) {
             setError(err.message || "Error loading expense summary.");
+        } finally {
             setLoading(false);
-        });
+        }
     };
 
     if (loading) {

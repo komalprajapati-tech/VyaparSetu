@@ -254,16 +254,28 @@ function Reports() {
                                 <tbody className="divide-y divide-slate-100">
                                     {entries.map((entry) => (
                                         <tr key={entry.id} className="hover:bg-slate-50/50 transition">
-                                            <td className="p-4 whitespace-nowrap text-slate-600">{entry.date}</td>
-                                            <td className="p-4 font-bold text-slate-900">{entry.category}</td>
-                                            <td className="p-4 text-slate-500 max-w-xs truncate">{entry.note || "-"}</td>
-                                            <td className={`p-4 text-right font-bold ${entry.type === "income" ? "text-emerald-600" : "text-red-500"}`}>
+                                            <td className="p-4 whitespace-nowrap text-slate-600 font-medium">{entry.date}</td>
+                                            <td className="p-4">
+                                                <span className={`inline-block text-[11px] font-bold px-2.5 py-1 rounded-lg border ${
+                                                    entry.category === "Restaurant Sales"
+                                                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                                        : entry.type === "income"
+                                                        ? "bg-blue-50 text-blue-800 border-blue-200"
+                                                        : "bg-amber-50 text-amber-800 border-amber-200"
+                                                }`}>
+                                                    {entry.category}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-slate-700 max-w-sm font-medium">
+                                                {entry.note || "-"}
+                                            </td>
+                                            <td className={`p-4 text-right font-black text-sm ${entry.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                                                 {entry.type === "income" ? "+" : "-"} ₹{entry.amount.toLocaleString("en-IN")}
                                             </td>
                                             <td className="p-4 text-center print:hidden">
                                                 <button
                                                     onClick={() => handleDelete(entry.id)}
-                                                    className="text-slate-400 hover:text-red-500 transition p-1"
+                                                    className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg p-1.5 transition cursor-pointer"
                                                     title="Delete Entry"
                                                 >
                                                     <Trash2 size={15} />

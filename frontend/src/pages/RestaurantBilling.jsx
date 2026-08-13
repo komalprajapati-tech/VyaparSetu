@@ -23,7 +23,7 @@ import Layout from "../components/Layout";
 import API_BASE_URL from "../config";
 
 function RestaurantBilling() {
-    const { token, user } = useApp();
+    const { token, user, apiFetch } = useApp();
     const [products, setProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [activeCategory, setActiveCategory] = useState("All");
@@ -187,14 +187,13 @@ function RestaurantBilling() {
                 discount: calculatedDiscount
             };
 
-            const res = await fetch(`${API_BASE_URL}/api/billing/generate/`, {
+            const res = await apiFetch("/api/billing/generate/", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(payload)
-            });
+            }, "Generating receipt & posting sales...");
 
             const data = await res.json();
             if (data.success) {
@@ -205,7 +204,8 @@ function RestaurantBilling() {
                 setBillError(data.message || "Failed to generate bill.");
             }
         } catch (err) {
-            setBillError("Server connection error.");
+            console.error("Error generating bill:", err);
+            setBillError(err.message || "Server connection error.");
         } finally {
             setGeneratingBill(false);
         }

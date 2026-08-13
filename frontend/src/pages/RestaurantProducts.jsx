@@ -13,7 +13,9 @@ import {
     Layers, 
     Power,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    Image as ImageIcon,
+    Upload
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Layout from "../components/Layout";
@@ -22,7 +24,7 @@ import API_BASE_URL from "../config";
 const DEFAULT_CATEGORIES = ["Starters", "Main Course", "Beverages", "Desserts", "Snacks", "Combos"];
 
 function RestaurantProducts() {
-    const { token } = useApp();
+    const { token, apiFetch } = useApp();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -32,6 +34,7 @@ function RestaurantProducts() {
     const [showModal, setShowModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const [error, setError] = useState("");
 
     // Form inputs
@@ -41,7 +44,8 @@ function RestaurantProducts() {
         price: "",
         is_veg: true,
         is_available: true,
-        variants: [] // Array of { name: "", price: "" }
+        variants: [],
+        image_url: ""
     });
 
     const [newVariant, setNewVariant] = useState({ name: "", price: "" });
@@ -68,6 +72,39 @@ function RestaurantProducts() {
         fetchProducts();
     }, [token]);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingImage(true);
+        setError("");
+
+        try {
+            const imageFormData = new FormData();
+            imageFormData.append("image", file);
+
+            const res = await fetch(`${API_BASE_URL}/api/upload-image/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: imageFormData
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setFormData(prev => ({ ...prev, image_url: data.imageUrl }));
+            } else {
+                setError(data.message || "Failed to upload image.");
+            }
+        } catch (err) {
+            console.error("Image upload failed:", err);
+            setError("Image upload failed. Connection error.");
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
     const handleOpenAddModal = () => {
         setEditingProduct(null);
         setFormData({
@@ -76,7 +113,8 @@ function RestaurantProducts() {
             price: "",
             is_veg: true,
             is_available: true,
-            variants: []
+            variants: [],
+            image_url: ""
         });
         setError("");
         setShowModal(true);
@@ -90,7 +128,8 @@ function RestaurantProducts() {
             price: prod.price.toString(),
             is_veg: prod.is_veg,
             is_available: prod.is_available,
-            variants: prod.variants ? [...prod.variants] : []
+            variants: prod.variants ? [...prod.variants] : [],
+            image_url: prod.image_url || ""
         });
         setError("");
         setShowModal(true);
@@ -119,10 +158,9 @@ function RestaurantProducts() {
     const handleDeleteProduct = async (prodId) => {
         if (!window.confirm("Are you sure you want to delete this menu product?")) return;
         try {
-            const res = await fetch(`${API_BASE_URL}/api/products/${prodId}/`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${token}` }
-            });
+            const res = await apiFetch(`/api/products/${prodId}/`, {
+                method: "DELETE"
+            }, "Deleting product...");
             const data = await res.json();
             if (data.success) {
                 setProducts(products.filter(p => p.id !== prodId));
@@ -165,23 +203,24 @@ function RestaurantProducts() {
                 price: parseFloat(formData.price),
                 is_veg: formData.is_veg,
                 is_available: formData.is_available,
-                variants: formData.variants
+                variants: formData.variants,
+                image_url: formData.image_url
             };
 
-            const url = editingProduct 
-                ? `${API_BASE_URL}/api/products/${editingProduct.id}/`
-                : `${API_BASE_URL}/api/products/`;
+            const endpoint = editingProduct 
+                ? `/api/products/${editingProduct.id}/`
+                : `/api/products/`;
 
             const method = editingProduct ? "PUT" : "POST";
+            const msg = editingProduct ? "Updating product..." : "Saving new product...";
 
-            const res = await fetch(url, {
+            const res = await apiFetch(endpoint, {
                 method: method,
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(payload)
-            });
+            }, msg);
 
             const data = await res.json();
             if (data.success) {
@@ -304,6 +343,22 @@ function RestaurantProducts() {
                             }`}
                         >
                             <div>
+                                {/* Product Image Preview */}
+                                {product.image_url ? (
+                                    <div className="w-full h-36 mb-3 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                                        <img 
+                                            src={product.image_url} 
+                                            alt={product.name} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-full h-24 mb-3 rounded-xl bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                                        <UtensilsCrossed size={20} className="opacity-40 mb-1" />
+                                        <span className="text-[10px] font-medium">No Image</span>
+                                    </div>
+                                )}
+
                                 {/* Header badge row */}
                                 <div className="flex items-center justify-between gap-2 mb-3">
                                     {/* Veg / Non-Veg Indicator */}
@@ -393,7 +448,7 @@ function RestaurantProducts() {
             {/* Add / Edit Product Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-                    <div className="bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-150">
+                    <div className="bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-150 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <UtensilsCrossed size={18} className="text-emerald-600" />
@@ -415,6 +470,56 @@ function RestaurantProducts() {
                         )}
 
                         <form onSubmit={handleSaveProduct} className="mt-4 space-y-4">
+                            {/* Dish Image Upload Section */}
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Dish Image (Cloudinary)
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    {formData.image_url ? (
+                                        <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 group">
+                                            <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, image_url: "" })}
+                                                className="absolute inset-0 bg-slate-900/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                                                title="Remove Image"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="w-16 h-16 rounded-xl bg-slate-50 border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                                            <ImageIcon size={22} />
+                                        </div>
+                                    )}
+
+                                    <div className="flex-1">
+                                        <label className="inline-flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold cursor-pointer hover:bg-emerald-100 transition">
+                                            {uploadingImage ? (
+                                                <>
+                                                    <Loader2 size={14} className="animate-spin" />
+                                                    Uploading to Cloudinary...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload size={14} />
+                                                    {formData.image_url ? "Change Image" : "Upload Image"}
+                                                </>
+                                            )}
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleImageUpload} 
+                                                disabled={uploadingImage}
+                                                className="hidden" 
+                                            />
+                                        </label>
+                                        <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Product Name */}
                             <div>
                                 <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -436,18 +541,16 @@ function RestaurantProducts() {
                                     <label className="block text-xs font-bold text-slate-700 mb-1">
                                         Category *
                                     </label>
-                                    <input
-                                        type="text"
-                                        list="category-suggestions"
-                                        placeholder="e.g. Starters, Main Course"
+                                    <select
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                         required
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
-                                    />
-                                    <datalist id="category-suggestions">
-                                        {DEFAULT_CATEGORIES.map(c => <option key={c} value={c} />)}
-                                    </datalist>
+                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                                    >
+                                        {Array.from(new Set([...DEFAULT_CATEGORIES, ...products.map(p => p.category)])).map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div>
